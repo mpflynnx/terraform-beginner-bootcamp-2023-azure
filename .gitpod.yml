@@ -6,12 +6,13 @@ tasks:
       cd $PROJECT_ROOT
       source ./bin/create_bash_aliases
       source ./bin/install_terraform_cli
+      gp sync-done terraform-cli
   - name: azure-cli
     before: |
       cd $PROJECT_ROOT
       source ./bin/create_bash_aliases
-      source ./bin/install_azure_cli
+      gp sync-await terraform-cli && source ./bin/install_azure_cli
 vscode:
   extensions:
     - hashicorp.terraform
-    - ms-azuretools.vscode-azureterraform
+    - ms-vscode.azurecli
