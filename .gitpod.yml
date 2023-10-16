@@ -7,7 +7,6 @@ tasks:
       source ./bin/create_bash_aliases
       source ./bin/install_terraform_cli
   - name: azure-cli
-    env:
     before: |
       cd $PROJECT_ROOT
       source ./bin/create_bash_aliases
