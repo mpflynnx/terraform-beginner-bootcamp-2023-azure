@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Define target file
+TARGET_FILE="/home/gitpod/.bash_aliases"
+
+# Create file if it doesn't exist.
+if [ ! -e "$TARGET_FILE" ]; then
+    touch "$TARGET_FILE"
+fi
+
+# Populate file with aliases
+cat > "$TARGET_FILE" << EOF
+alias tf='terraform'
+EOF
+
+echo "${TARGET_FILE} has been created."
+
+# Reload the .bash_aliases file in your current shell session.
+source ${TARGET_FILE}
+
+# Note: If you’re running this script as a separate process, the
+# above command will not affect your current shell session. 
+# You will have to run the source /home/gitpod/.bash_aliases 
+# command manually in your terminal to reload the file.
+# To stop this script running as a separate process 
+# use the source ./create_bash_alias command.
