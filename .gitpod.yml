@@ -1,0 +1,18 @@
+tasks:
+  - name: terraform-cli
+    env:
+      TF_LOG: DEBUG
+    before: |
+      cd $PROJECT_ROOT
+      source ./bin/create_bash_aliases
+      source ./bin/install_terraform_cli
+  - name: azure-cli
+    env:
+    before: |
+      cd $PROJECT_ROOT
+      source ./bin/create_bash_aliases
+      source ./bin/install_azure_cli
+vscode:
+  extensions:
+    - hashicorp.terraform
+    - ms-azuretools.vscode-azureterraform
