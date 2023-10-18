@@ -1,4 +1,11 @@
 terraform {
+  cloud {
+    organization = "mpflynnx"
+
+    workspaces {
+      name = "terra-home-1"
+    }
+  }
   required_providers {
     azurerm = {
       source = "hashicorp/azurerm"
