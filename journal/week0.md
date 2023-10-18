@@ -1,4 +1,4 @@
-# <p align=center>Terraform Beginner Bootcamp 2023 Azure Week 0
+# <p align=center>Terraform Beginner Bootcamp 2023 Week 0
 
 ## Week 0 Objectives.
 The objectives of week 0 where:
@@ -151,7 +151,7 @@ The Terraform documentation is a great resource, with many examples. It should b
 
 ### Terraform modules
 
-Modules are templates for commonly used actions, they are self-contained packages of Terraform configurations that are managed as a group. You can find modules for many of the platforms and services like AWS and AZURE in the [Terraform Registry Modules section](https://registry.terraform.io/browse/modules)
+Modules are templates for commonly used actions, they are self-contained packages of Terraform configurations that are managed as a group. You can find modules for many of the platforms and services like AWS and Azure in the [Terraform Registry Modules section](https://registry.terraform.io/browse/modules)
 
 ## Terraform CLI
 
@@ -1129,7 +1129,7 @@ The credentials will apply only to the to a single 'terra-home-1' workspace. Wor
 1. Click Variables on left hand pane.
 1. Scroll down to Workspace variables.
 1. Open another browser tab and login to your [Gitpod account](https://gitpod.io/login/).
-1. Go to Gitpod, User settings, then click [Variables](https://gitpod.io/user/variables). Here are the AWS credentials we added to our Gitpod account previously. We will copy them for here to the Terraform Cloud workspace.
+1. Go to Gitpod, User settings, then click [Variables](https://gitpod.io/user/variables). Here are the Azure credentials we added to our Gitpod account previously. We will copy them for here to the Terraform Cloud workspace.
 1. Go back onto the Terraform Cloud 'terra-home-1' workspace browser tab.
 1. Click + Add variable.
 1. Choose the variable category as environment.
