@@ -6,6 +6,7 @@ tasks:
       cd $PROJECT_ROOT
       source ./bin/create_bash_aliases
       source ./bin/install_terraform_cli
+      source ./bin/generate_tfrc_credentials
       gp sync-done terraform-cli
   - name: azure-cli
     before: |
