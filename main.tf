@@ -34,7 +34,11 @@ resource "azurerm_storage_account" "storage_account" {
 
   static_website {
     index_document = "index.html"
+    error_404_document = "error.html"
+  }
 
+  tags = {
+    UserUuid = var.user_uuid
   }
 }
 
@@ -46,4 +50,14 @@ resource "azurerm_storage_blob" "blob" {
   type = "Block"
   content_type = "text/html"
   source_content = "<h1>Hello, this is a website deployed using Azure storage account and Terraform.</h1>"
+}
+
+# Add a error.html file
+resource "azurerm_storage_blob" "blob2" {
+  name = "error.html"
+  storage_account_name = azurerm_storage_account.storage_account.name
+  storage_container_name = "$web"
+  type = "Block"
+  content_type = "text/html"
+  source_content = "<h1>Hello, this is a Error page deployed using Azure storage account and Terraform.</h1>"
 }

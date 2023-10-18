@@ -4,6 +4,7 @@ tasks:
       TF_LOG: DEBUG
     before: |
       cd $PROJECT_ROOT
+      cp $PROJECT_ROOT/terraform.tfvars.example $PROJECT_ROOT/terraform.tfvars
       source ./bin/create_bash_aliases
       source ./bin/install_terraform_cli
       source ./bin/generate_tfrc_credentials
