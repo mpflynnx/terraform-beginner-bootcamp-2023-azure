@@ -25,7 +25,7 @@ resource "azurerm_storage_blob" "index_html" {
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
-  source_content = "/workspace/terraform-beginner-bootcamp-2023-azure/public/index.html"
+  source = "/workspace/terraform-beginner-bootcamp-2023-azure/public/index.html"
   # content_md5 = filemd5("${var.public_path}/index.html")
 }
 
@@ -36,7 +36,7 @@ resource "azurerm_storage_blob" "index_html" {
 #   storage_container_name = "$web"
 #   type = "Block"
 #   content_type = "text/html"
-#   source_content = "${var.public_path}/error.html"
+#   source = "${var.public_path}/error.html"
 
 #   # content_md5 = filemd5("${var.public_path}/error.html")
 # }
