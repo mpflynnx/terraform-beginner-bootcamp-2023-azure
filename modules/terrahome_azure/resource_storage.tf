@@ -25,21 +25,21 @@ resource "azurerm_storage_blob" "index_html" {
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
-  source = "/workspace/terraform-beginner-bootcamp-2023-azure/public/index.html"
-  # content_md5 = filemd5("${var.public_path}/index.html")
+  source = "${var.public_path}/index.html"
+  content_md5 = filemd5("${var.public_path}/index.html")
 }
 
-# # # Add a error.html file
-# resource "azurerm_storage_blob" "error_html" {
-#   name = "error.html"
-#   storage_account_name = azurerm_storage_account.storage_account.name
-#   storage_container_name = "$web"
-#   type = "Block"
-#   content_type = "text/html"
-#   source = "${var.public_path}/error.html"
+# Add a error.html file
+resource "azurerm_storage_blob" "error_html" {
+  name = "error.html"
+  storage_account_name = azurerm_storage_account.storage_account.name
+  storage_container_name = "$web"
+  type = "Block"
+  content_type = "text/html"
+  source = "${var.public_path}/error.html"
 
-#   # content_md5 = filemd5("${var.public_path}/error.html")
-# }
+  content_md5 = filemd5("${var.public_path}/error.html")
+}
 
 data "azurerm_storage_account" "storage_data_source" {
   name = azurerm_storage_account.storage_account.name

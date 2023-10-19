@@ -34,6 +34,6 @@ variable "account_replication_type" {
 }
 
 variable "public_path" {
-  description = "The file path for index.html"
+  description = "The file path for public folder"
   type        = string
 }
