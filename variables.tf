@@ -32,3 +32,8 @@ variable "account_replication_type" {
   description = "Defines the type of replication to use for this storage account"
   type = string
 }
+
+variable "public_path" {
+  description = "The file path for index.html"
+  type        = string
+}

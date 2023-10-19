@@ -19,24 +19,27 @@ resource "azurerm_storage_account" "storage_account" {
 }
 
 # Add a index.html file
-resource "azurerm_storage_blob" "blob" {
+resource "azurerm_storage_blob" "index_html" {
   name = "index.html"
   storage_account_name = azurerm_storage_account.storage_account.name
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
-  source_content = "<h1>Hello, this is a website deployed using Azure storage account and Terraform.</h1>"
+  source_content = "/workspace/terraform-beginner-bootcamp-2023-azure/public/index.html"
+  # content_md5 = filemd5("${var.public_path}/index.html")
 }
 
-# Add a error.html file
-resource "azurerm_storage_blob" "blob2" {
-  name = "error.html"
-  storage_account_name = azurerm_storage_account.storage_account.name
-  storage_container_name = "$web"
-  type = "Block"
-  content_type = "text/html"
-  source_content = "<h1>Hello, this is a Error page deployed using Azure storage account and Terraform.</h1>"
-}
+# # # Add a error.html file
+# resource "azurerm_storage_blob" "error_html" {
+#   name = "error.html"
+#   storage_account_name = azurerm_storage_account.storage_account.name
+#   storage_container_name = "$web"
+#   type = "Block"
+#   content_type = "text/html"
+#   source_content = "${var.public_path}/error.html"
+
+#   # content_md5 = filemd5("${var.public_path}/error.html")
+# }
 
 data "azurerm_storage_account" "storage_data_source" {
   name = azurerm_storage_account.storage_account.name

@@ -37,3 +37,14 @@ variable "account_replication_type" {
   description = "Defines the type of replication to use for this storage account"
   type = string
 }
+
+variable "public_path" {
+  description = "The file path for index.html"
+  type        = string
+
+  validation {
+    condition     = fileexists("${var.public_path}/index.html")
+    # condition     = fileexists("/workspace/terraform-beginner-bootcamp-2023-azure/public/index.html")
+    error_message = "File index.html does not exist."
+  }
+}
