@@ -1,7 +1,6 @@
 
 # Create a storage account
 resource "azurerm_storage_account" "storage_account" {
-  depends_on = [ azurerm_resource_group.resource_group ]
   name = var.storage_account_name
   resource_group_name = azurerm_resource_group.resource_group.name
   location = azurerm_resource_group.resource_group.location
@@ -21,7 +20,6 @@ resource "azurerm_storage_account" "storage_account" {
 
 # Add a index.html file
 resource "azurerm_storage_blob" "blob" {
-  depends_on = [ azurerm_storage_account.storage_account ]
   name = "index.html"
   storage_account_name = azurerm_storage_account.storage_account.name
   storage_container_name = "$web"
@@ -32,7 +30,6 @@ resource "azurerm_storage_blob" "blob" {
 
 # Add a error.html file
 resource "azurerm_storage_blob" "blob2" {
-  depends_on = [ azurerm_storage_account.storage_account ]
   name = "error.html"
   storage_account_name = azurerm_storage_account.storage_account.name
   storage_container_name = "$web"
@@ -42,7 +39,6 @@ resource "azurerm_storage_blob" "blob2" {
 }
 
 data "azurerm_storage_account" "storage_data_source" {
-  depends_on = [ azurerm_storage_account.storage_account ]
-  name = var.storage_account_name
-  resource_group_name = var.resource_group_name
+  name = azurerm_storage_account.storage_account.name
+  resource_group_name = azurerm_resource_group.resource_group.name
 }
