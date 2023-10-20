@@ -3,6 +3,10 @@ output "storage_primary_web_endpoint" {
   value = module.terrahome_azure.primary_web_endpoint
 }
 
+output "storage_primary_web_hostname" {
+  description = "Storage accounts static website primary hostname"
+  value = module.terrahome_azure.primary_web_hostname
+}
 # output "cdn_cdn_endpoint_hostname" {
 #   description = ""
 #   value = module.terrahome_azure.cdn_endpoint_hostname

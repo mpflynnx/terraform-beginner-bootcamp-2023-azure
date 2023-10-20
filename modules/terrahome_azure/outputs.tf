@@ -1,6 +1,21 @@
+# output "primary_web_endpoint" {
+#   description = "Storage accounts static website primary endpoint"
+#   value = data.azurerm_storage_account.storage_data_source.primary_web_endpoint
+# }
+
 output "primary_web_endpoint" {
   description = "Storage accounts static website primary endpoint"
-  value = data.azurerm_storage_account.storage_data_source.primary_web_endpoint
+  value = azurerm_storage_account.storage_account.primary_web_endpoint
+}
+
+# output "primary_web_hostname" {
+#   description = "Storage accounts static website primary hostname"
+#   value = data.azurerm_storage_account.storage_data_source.primary_web_host
+# }
+
+output "primary_web_hostname" {
+  description = "Storage accounts static website primary hostname"
+  value = azurerm_storage_account.storage_account.primary_web_host
 }
 
 # output "cdn_endpoint_hostname" {
