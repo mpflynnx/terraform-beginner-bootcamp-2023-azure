@@ -1,83 +1,76 @@
-resource "random_string" "aazurerm_cdn_profile_name" {
-  length  = 13
-  lower   = true
-  numeric = false
-  special = false
-  upper   = false
+# resource "random_pet" "rg-name" {
+#   prefix = var.resource_group_name_prefix
+# }
+
+# resource "azurerm_resource_group" "rg" {
+#   name     = random_pet.rg-name.id
+#   location = var.resource_group_location
+# }
+
+resource "random_id" "front_door_endpoint_name" {
+  byte_length = 8
 }
 
-resource "azurerm_cdn_profile" "profile" {
-  name                = "profile-${random_string.azurerm_cdn_endpoint_name.result}"
-  location            = "global"
+locals {
+  front_door_profile_name      = "MyFrontDoor"
+  front_door_endpoint_name     = "afd-${lower(random_id.front_door_endpoint_name.hex)}"
+  front_door_origin_group_name = "MyOriginGroup"
+  front_door_origin_name       = "MyAppServiceOrigin"
+  front_door_route_name        = "MyRoute"
+}
+
+resource "azurerm_cdn_frontdoor_profile" "my_front_door" {
+  name                = local.front_door_profile_name
   resource_group_name = azurerm_resource_group.rg.name
-  sku                 = var.cdn_sku
+  sku_name            = Standard_AzureFrontDoor
 }
 
-resource "random_string" "azurerm_cdn_endpoint_name" {
-  length  = 13
-  lower   = true
-  numeric = false
-  special = false
-  upper   = false
+resource "azurerm_cdn_frontdoor_endpoint" "my_endpoint" {
+  name                     = local.front_door_endpoint_name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.my_front_door.id
 }
 
-resource "azurerm_cdn_endpoint" "endpoint" {
-  depends_on = [ data.azurerm_storage_account.storage_data_source ]
-  name                          = "endpoint-${random_string.azurerm_cdn_endpoint_name.result}"
-  profile_name                  = azurerm_cdn_profile.profile.name
-  location                      = "global"
-  resource_group_name           = azurerm_resource_group.rg.name
-  is_http_allowed               = true
-  is_https_allowed              = true
-  querystring_caching_behaviour = "IgnoreQueryString"
-  is_compression_enabled        = true
-  content_types_to_compress = [
-    "application/eot",
-    "application/font",
-    "application/font-sfnt",
-    "application/javascript",
-    "application/json",
-    "application/opentype",
-    "application/otf",
-    "application/pkcs7-mime",
-    "application/truetype",
-    "application/ttf",
-    "application/vnd.ms-fontobject",
-    "application/xhtml+xml",
-    "application/xml",
-    "application/xml+rss",
-    "application/x-font-opentype",
-    "application/x-font-truetype",
-    "application/x-font-ttf",
-    "application/x-httpd-cgi",
-    "application/x-javascript",
-    "application/x-mpegurl",
-    "application/x-opentype",
-    "application/x-otf",
-    "application/x-perl",
-    "application/x-ttf",
-    "font/eot",
-    "font/ttf",
-    "font/otf",
-    "font/opentype",
-    "image/svg+xml",
-    "text/css",
-    "text/csv",
-    "text/html",
-    "text/javascript",
-    "text/js",
-    "text/plain",
-    "text/richtext",
-    "text/tab-separated-values",
-    "text/xml",
-    "text/x-script",
-    "text/x-component",
-    "text/x-java-source",
-  ]
+resource "azurerm_cdn_frontdoor_origin_group" "my_origin_group" {
+  name                     = local.front_door_origin_group_name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.my_front_door.id
+  session_affinity_enabled = true
 
-  origin {
-    name      = "origin1"
-    host_name = "terraformaccount202310.z33.web.core.windows.net"
-    # host_name = data.azurerm_storage_account.storage_data_source.primary_web_endpoint
+  load_balancing {
+    sample_size                 = 4
+    successful_samples_required = 3
   }
+
+  health_probe {
+    path                = "/"
+    request_type        = "HEAD"
+    protocol            = "Https"
+    interval_in_seconds = 100
+  }
+}
+
+resource "azurerm_cdn_frontdoor_origin" "my_app_service_origin" {
+  name                          = local.front_door_origin_name
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.my_origin_group.id
+
+  enabled                        = true
+  host_name                      = azurerm_storage_account.storage_account.primary_web_host
+  http_port                      = 80
+  https_port                     = 443
+  origin_host_header             = azurerm_storage_account.storage_account.primary_web_host
+  priority                       = 1
+  weight                         = 1000
+  certificate_name_check_enabled = true
+}
+
+resource "azurerm_cdn_frontdoor_route" "my_route" {
+  name                          = local.front_door_route_name
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.my_endpoint.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.my_origin_group.id
+  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.my_app_service_origin.id]
+
+  supported_protocols    = ["Http", "Https"]
+  patterns_to_match      = ["/*"]
+  forwarding_protocol    = "HttpsOnly"
+  link_to_default_domain = true
+  https_redirect_enabled = true
 }
