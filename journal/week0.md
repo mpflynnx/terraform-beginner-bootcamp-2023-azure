@@ -830,7 +830,7 @@ We copy the code block detailed in the documentation and update the values accor
 
 ```hcl
 # Create a resource group
-resource "azurerm_resource_group" "resource_group" {
+resource "azurerm_resource_group" "rg" {
   name     = "terraform-beginner-bootcamp-2023-azure"
   location = "UK South"
 }
@@ -845,10 +845,10 @@ We copy the code block detailed in the documentation and update the values accor
 
 ```hcl
 # Create a storage account
-resource "azurerm_storage_account" "storage_account" {
+resource "azurerm_storage_account" "st" {
   name = "terraformaccount20231017105432"
-  resource_group_name = azurerm_resource_group.resource_group.name
-  location = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location = azurerm_resource_group.rg.location
   account_tier = "Standard"
   account_replication_type = "LRS"
   account_kind = "StorageV2"
@@ -863,9 +863,9 @@ resource "azurerm_storage_account" "storage_account" {
 name - (Required) Specifies the name of the storage account. Only lowercase Alphanumeric characters allowed. Changing this forces a new resource to be created. This must be unique across the entire Azure service, not just within the resource group
 
 To save typing the name of the resource group for every new resource
-created. I have used the .name suffix after azurerm_resource_group.resource_group.
+created. I have used the .name suffix after azurerm_resource_group.rg.
 
-To save typing the location for every new resource created. I have used the .location suffix after azurerm_resource_group.resource_group
+To save typing the location for every new resource created. I have used the .location suffix after azurerm_resource_group.rg
 
 To allow the storage account to store a static website I have
 enabled it, by passing the following:-
@@ -889,7 +889,7 @@ We copy the code block detailed in the documentation and update the values accor
 # Add a index.html file
 resource "azurerm_storage_blob" "blob" {
   name = "index.html"
-  storage_account_name = azurerm_storage_account.storage_account.name
+  storage_account_name = azurerm_storage_account.st.name
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
@@ -1219,3 +1219,5 @@ The bash script should be run first as part of the .gitpod.yml 'before' task usi
 - [Terraform Cloud Variable Precedence](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#precedence)<sup>[12]</sup>
 
 - [Output data from Terraform](https://developer.hashicorp.com/terraform/tutorials/configuration-language/outputs)<sup>[13]</sup>
+
+- [Abbreviation examples for Azure resources](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations)

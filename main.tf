@@ -18,4 +18,5 @@ module "terrahome_azure" {
   account_replication_type = var.account_replication_type
   account_kind = var.account_kind
   public_path = var.public_path
+  cdn_sku = var.cdn_sku
 }

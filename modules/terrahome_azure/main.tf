@@ -4,6 +4,10 @@ terraform {
       source = "hashicorp/azurerm"
       version = "3.76.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~>3.0"
+    }
   }
 }
 
@@ -12,7 +16,7 @@ provider "azurerm" {
 }
 
 # Create a resource group
-resource "azurerm_resource_group" "resource_group" {
+resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.resource_group_location
 }
