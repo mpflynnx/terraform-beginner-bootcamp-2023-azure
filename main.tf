@@ -1,11 +1,11 @@
 terraform {
-  cloud {
-    organization = "mpflynnx"
+  # cloud {
+  #   organization = "mpflynnx"
 
-    workspaces {
-      name = "terra-home-1"
-    }
-  }
+  #   workspaces {
+  #     name = "terra-home-1"
+  #   }
+  # }
 }
 
 module "terrahome_azure" {

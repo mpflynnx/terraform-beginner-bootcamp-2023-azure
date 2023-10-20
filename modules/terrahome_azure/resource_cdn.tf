@@ -64,7 +64,7 @@ resource "azurerm_cdn_frontdoor_origin" "my_static_website_origin" {
 
 resource "azurerm_cdn_frontdoor_route" "my_route" {
   name                          = local.front_door_route_name
-  # depends_on = [ azurerm_cdn_frontdoor_origin_group.my_static_website_origin] // This explicit dependency is required to ensure that the origin group is not empty when the route is created.
+  # depends_on = [ azurerm_cdn_frontdoor_origin.my_static_website_origin] // This explicit dependency is required to ensure that the origin group is not empty when the route is created.
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.my_endpoint.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.my_origin_group.id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.my_static_website_origin.id]
