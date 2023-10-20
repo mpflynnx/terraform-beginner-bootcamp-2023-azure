@@ -22,7 +22,7 @@ locals {
 resource "azurerm_cdn_frontdoor_profile" "my_front_door" {
   name                = local.front_door_profile_name
   resource_group_name = azurerm_resource_group.rg.name
-  sku_name            = Standard_AzureFrontDoor
+  sku_name            = "Standard_AzureFrontDoor"
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "my_endpoint" {
@@ -48,15 +48,15 @@ resource "azurerm_cdn_frontdoor_origin_group" "my_origin_group" {
   }
 }
 
-resource "azurerm_cdn_frontdoor_origin" "my_app_service_origin" {
+resource "azurerm_cdn_frontdoor_origin" "my_static_website_origin" {
   name                          = local.front_door_origin_name
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.my_origin_group.id
 
   enabled                        = true
-  host_name                      = azurerm_storage_account.storage_account.primary_web_host
+  host_name                      = azurerm_storage_account.st.primary_web_host
   http_port                      = 80
   https_port                     = 443
-  origin_host_header             = azurerm_storage_account.storage_account.primary_web_host
+  origin_host_header             = azurerm_storage_account.st.primary_web_host
   priority                       = 1
   weight                         = 1000
   certificate_name_check_enabled = true
@@ -64,9 +64,10 @@ resource "azurerm_cdn_frontdoor_origin" "my_app_service_origin" {
 
 resource "azurerm_cdn_frontdoor_route" "my_route" {
   name                          = local.front_door_route_name
+  # depends_on = [ azurerm_cdn_frontdoor_origin_group.my_static_website_origin] // This explicit dependency is required to ensure that the origin group is not empty when the route is created.
   cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.my_endpoint.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.my_origin_group.id
-  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.my_app_service_origin.id]
+  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.my_static_website_origin.id]
 
   supported_protocols    = ["Http", "Https"]
   patterns_to_match      = ["/*"]

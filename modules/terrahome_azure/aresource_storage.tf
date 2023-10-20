@@ -1,4 +1,3 @@
-
 # Create a storage account
 resource "azurerm_storage_account" "st" {
   name = var.storage_account_name
