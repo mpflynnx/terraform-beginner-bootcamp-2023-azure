@@ -1,9 +1,8 @@
-
 # Create a storage account
-resource "azurerm_storage_account" "storage_account" {
+resource "azurerm_storage_account" "st" {
   name = var.storage_account_name
-  resource_group_name = azurerm_resource_group.resource_group.name
-  location = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location = azurerm_resource_group.rg.location
   account_tier = var.account_tier
   account_replication_type = var.account_replication_type
   account_kind = var.account_kind
@@ -21,7 +20,7 @@ resource "azurerm_storage_account" "storage_account" {
 # Add a index.html file
 resource "azurerm_storage_blob" "index_html" {
   name = "index.html"
-  storage_account_name = azurerm_storage_account.storage_account.name
+  storage_account_name = azurerm_storage_account.st.name
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
@@ -32,7 +31,7 @@ resource "azurerm_storage_blob" "index_html" {
 # Add a error.html file
 resource "azurerm_storage_blob" "error_html" {
   name = "error.html"
-  storage_account_name = azurerm_storage_account.storage_account.name
+  storage_account_name = azurerm_storage_account.st.name
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
@@ -42,6 +41,6 @@ resource "azurerm_storage_blob" "error_html" {
 }
 
 data "azurerm_storage_account" "storage_data_source" {
-  name = azurerm_storage_account.storage_account.name
-  resource_group_name = azurerm_resource_group.resource_group.name
+  name = azurerm_storage_account.st.name
+  resource_group_name = azurerm_resource_group.rg.name
 }

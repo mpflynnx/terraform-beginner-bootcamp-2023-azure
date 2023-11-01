@@ -37,3 +37,8 @@ variable "public_path" {
   description = "The file path for public folder"
   type        = string
 }
+
+variable "cdn_sku" {
+  type        = string
+  description = "CDN SKU names."
+}

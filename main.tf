@@ -1,11 +1,11 @@
 terraform {
-  cloud {
-    organization = "mpflynnx"
+  # cloud {
+  #   organization = "mpflynnx"
 
-    workspaces {
-      name = "terra-home-1"
-    }
-  }
+  #   workspaces {
+  #     name = "terra-home-1"
+  #   }
+  # }
 }
 
 module "terrahome_azure" {
@@ -18,4 +18,5 @@ module "terrahome_azure" {
   account_replication_type = var.account_replication_type
   account_kind = var.account_kind
   public_path = var.public_path
+  cdn_sku = var.cdn_sku
 }
