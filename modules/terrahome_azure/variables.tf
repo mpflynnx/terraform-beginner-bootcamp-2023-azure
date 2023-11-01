@@ -63,3 +63,8 @@ variable "cdn_sku" {
     error_message = "The cdn_sku must be one of the following: Standard_Akamai, Standard_Microsoft, Standard_Verizon, Premium_Verizon."
   }
 }
+
+variable "my_ip_address" {
+  type        = string
+  description = "my external ip address"  
+}

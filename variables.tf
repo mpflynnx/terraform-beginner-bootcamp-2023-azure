@@ -42,3 +42,8 @@ variable "cdn_sku" {
   type        = string
   description = "CDN SKU names."
 }
+
+variable "my_ip_address" {
+  type        = string
+  description = "my external ip address"  
+}
