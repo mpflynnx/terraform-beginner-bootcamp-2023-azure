@@ -8,6 +8,7 @@ The objectives of week 1 where:
 - Refactor the project into modules.
 - Upload files to a storage account using Terraform.
 - Create a Content Delivery Network with Azure Front Door.
+- Assign a Web application Firewall (WAF) policy to Front Door.
 
 <!-- <p align="center">
 
@@ -45,6 +46,16 @@ The objectives of week 1 where:
   - [Front Door Endpoint](#front-door-endpoint)
   - [Origins and Origin Groups](#origins-and-origin-groups)
   - [Routes](#routes)
+- [Web Appllication Firewall (WAF)](#web-application-firewall-waf)
+  - [WAF policy and rules](#waf-policy-and-rules)
+  - [WAF modes](#waf-modes)
+  - [WAF custom rules](#waf-custom-rules)
+  - [IP restriction custom rule](#ip-restriction-custom-rule)
+  - [Create a WAF policy using Terraform](#create-a-waf-policy-using-terraform)
+  - [Security policy](#security-policy)
+  - [Testing the WAF policy](#testing-the-waf-policy)
+  - [Disable a WAF policy](#disable-a-waf-policy)
+
 - [External References](#external-references)
 
 ## Terraform Cloud execution modes
@@ -676,9 +687,203 @@ resource "azurerm_cdn_frontdoor_route" "my_route" {
 }
 ```
 
+## Web Application Firewall (WAF)
+
+[Web Application Firewall (WAF)](https://learn.microsoft.com/en-us/azure/web-application-firewall/) provides centralised protection of web applications from common exploits and vulnerabilities. We can deploy [WAF on Azure Front Door](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview).
+
+Azure Web Application Firewall is natively integrated with Azure Front Door Premium with full capabilities.
+As we previously created a Azure Front Door profile using the Standard tier we can only use custom rules.
+
+### WAF policy and rules
+
+We can configure a WAF policy and associate that policy to our Azure Front Door domains for protection. A WAF policy consists of two types of security rules:
+
+- Custom rules that the customer created. (Standard or Premium tier)
+- Managed rule sets that are a collection of Azure-managed preconfigured sets of rules. (Premium tier only)
+
+### WAF modes
+
+We can configure our WAF policy to run in two modes:
+
+- Detection: When a WAF runs in detection mode, it only monitors and logs the request and its matched WAF rule to WAF logs. It doesn't take any other actions. You can turn on logging diagnostics for Azure Front Door. When you use the portal, go to the Diagnostics section.
+- Prevention: In prevention mode, a WAF takes the specified action if a request matches a rule. If a match is found, no further rules with lower priority are evaluated. Any matched requests are also logged in the WAF logs.
+
+### WAF custom rules
+Our WAF policy will consist of custom security rule.
+
+We can configure [custom rules](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview#custom-authored-rules) for a WAF, using the following controls:
+
+- IP allow list and block list.
+- Geographic-based access control.
+- HTTP parameters-based access control.
+- Size constraint.
+- Rate limiting rules.
+
+### IP restriction custom rule
+
+For this project and ease of demonstration and testing, we shall create a IP restriction custom rule. The rule will when enabled, allow only one IP address to access the Azure Front Door domain all other addresses will receive a 403 forbidden response.
+
+### Create a WAF policy using Terraform
+
+We will create a new configuration file named 'resource_security.tf' in our terrahome_azure module, here we shall create the WAF policy.
+
+To create a WAF policy using Terraform we can use [azurerm_cdn_frontdoor_firewall_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_firewall_policy). This resource is dependent upon Azure resource group and Azure Front Door Profile resources.
+
+Our policy shall contain one custom rule named 'FdWafCustRule'. This rule will only allow one IP address to access our Front Door Domain. We are doing this to best demonstate how a WAF policy works. The allowed IP address will be your public IP address. You can find your public IP address from [dnsleaktest.com](https://dnsleaktest.com/). Your public IP address may change frequently so best to check frequently.
+
+We will store the IP address as an environmental variable named 'TF_VAR_my_ip_address'. Substitute the fake IP address with your IP address.
+
+```bash
+export TF_VAR_my_ip_address="12.345.678.910" # fake IP address
+gp env TF_VAR_my_ip_address="12.345.678.910" # fake IP address
+```
+
+We must now define the new variable in the root modules variables.tf files as well as the nested module terrahome_azure variables.tf
+
+#### variables.tf
+```tf
+...
+
+variable "my_ip_address" {
+  type        = string
+  description = "my external ip address"  
+}
+```
+
+The root module main.tf also needs updating as shown.
+
+```tf
+...
+
+module "terrahome_azure" {
+  source = "./modules/terrahome_azure"
+  ...
+  my_ip_address = var.my_ip_address
+}
+```
+
+We can then reference the variable in our waf policy resource block.
+
+#### resource_security.tf
+```tf
+locals {
+  waf_policy_name      = "wafpolicy1"
+}
+
+resource "azurerm_cdn_frontdoor_firewall_policy" "my_waf_policy" {
+  name                              = local.waf_policy_name
+  resource_group_name               = azurerm_resource_group.rg.name
+  sku_name                          = azurerm_cdn_frontdoor_profile.my_front_door.sku_name
+  enabled                           = true
+  mode                              = "Prevention"
+  custom_block_response_status_code = 403
+ 
+  custom_rule {
+    name                           = "FdWafCustRule"
+    enabled                        = true
+    priority                       = 100
+    rate_limit_duration_in_minutes = 1
+    rate_limit_threshold           = 100
+    type                           = "MatchRule"
+    action                         = "Block"
+
+    match_condition {
+      match_variable     = "SocketAddr"
+      operator           = "IPMatch"
+      negation_condition = true
+      match_values       = [var.my_ip_address] 
+    }
+  }
+}
+```
+
+### Security policy
+
+Now we have created a WAF policy we need to associate it with our Front Door profile and domain. We do this using a Security policy.
+
+A security policy includes a web application firewall (WAF) policy and one or more domains to provide centralised protection.
+
+To create a security policy using Terraform we can use [azurerm_cdn_frontdoor_security_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_security_policy).
+
+For this we need to provide a security policy name which must be unique within the Front Door. We will use the random provider to generate a random name for the policy.
+
+#### resource_security.tf
+```tf
+resource "random_id" "security_policy_name" {
+  byte_length = 16
+}
+
+locals {
+  ...
+  security_policy_name     = "${lower(random_id.security_policy_name.hex)}"
+}
+```
+
+We also need to provide the Front Door policy ID, WAF policy ID and domain ID.
+
+#### resource_security.tf
+```tf
+resource "azurerm_cdn_frontdoor_security_policy" "my_security_policy" {
+  name                     = local.security_policy_name
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.my_front_door.id
+
+  security_policies {
+    firewall {
+      cdn_frontdoor_firewall_policy_id = azurerm_cdn_frontdoor_firewall_policy.my_waf_policy.id
+
+      association {
+        domain {
+          cdn_frontdoor_domain_id = azurerm_cdn_frontdoor_endpoint.my_endpoint.id
+        }
+        patterns_to_match = ["/*"]
+      }
+    }
+  }
+}
+```
+
+### Testing the WAF policy
+
+We should be able to browse to our Front Door endpoint hostname with no errors, as we are only allowing one IP address to access this hostname. We can test the WAF policy by changing our environmental variable 'my_ip_address' to the fake IP address, as shown below.
+
+```bash
+export TF_VAR_my_ip_address="12.345.678.910" # Use the fake IP address
+```
+
+- Rerun the terraform plan command, and note the one change to the WAF policy is the change to the IP address.
+- Run the terraform apply command to update the WAF policy.
+- Wait a few minutes for the updated policy to become activated.
+- Navigate to the Front Door endpoint hostname. You should be presented with something similar to that shown below.
+
+```
+The request is blocked.
+
+
+20231101T121751Z-vkbq9r28ex7w71h17z09f06b1c00000005eg00000000qrdz   
+```
+
+You have successfully implemented and tested a WAF policy.
+
+### Disable a WAF policy
+Going forward, we do not need to implement this WAF policy, so we should disable it. We can do this by changing 'enabled' argument value to 'false' for the policy.
+
+```tf
+resource "azurerm_cdn_frontdoor_firewall_policy" "my_waf_policy" {
+  
+  ...
+
+  enabled                           = false
+
+  ...
+```
+
+Rerun terraform apply, to implement this.
+
 ## External References
 - [Standard Module Structure](https://developer.hashicorp.com/terraform/language/modules/develop/structure) <sup>[1]</sup>
 - [Input Variables](https://developer.hashicorp.com/terraform/language/values/variables) <sup>[2]</sup>
 - [Terraform Modules](https://developer.hashicorp.com/terraform/language/modules) <sup>[4]</sup>
 - [Module Sources](https://developer.hashicorp.com/terraform/language/modules/sources) <sup>[5]</sup>
 - [Provider Version Constraints in Modules](https://developer.hashicorp.com/terraform/language/modules/develop/providers#provider-version-constraints-in-modules) <sup>[6]</sup>
+- [Configure an IP restriction rule with a WAF for Azure Front Door](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/waf-front-door-configure-ip-restriction)
+- [Azure Web Application Firewall on Azure Front Door](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview)

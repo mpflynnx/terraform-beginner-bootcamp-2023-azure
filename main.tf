@@ -19,4 +19,5 @@ module "terrahome_azure" {
   account_kind = var.account_kind
   public_path = var.public_path
   cdn_sku = var.cdn_sku
+  my_ip_address = var.my_ip_address
 }
