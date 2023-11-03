@@ -1,9 +1,6 @@
 name: "Terraform Apply"
 
-on:
-  push:
-    branches:
-      - main
+on: [workflow_dispatch]
 
 env:
   TF_CLOUD_ORGANIZATION: "mpflynnx"
