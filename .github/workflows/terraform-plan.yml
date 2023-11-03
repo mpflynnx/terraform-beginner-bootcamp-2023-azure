@@ -1,7 +1,6 @@
 name: "Terraform Plan"
 
-on:
-  pull_request:
+on: [workflow_dispatch]
 
 env:
   TF_CLOUD_ORGANIZATION: "mpflynnx"
