@@ -68,3 +68,13 @@ variable "my_ip_address" {
   type        = string
   description = "my external ip address"  
 }
+
+variable "content_version" {
+  type        = number
+  description = "Content version number"
+  default     = 1
+  validation {
+    condition     = var.content_version > 0 && can(var.content_version)
+    error_message = "Content version must be a positive integer"
+  }
+}

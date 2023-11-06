@@ -47,3 +47,8 @@ variable "my_ip_address" {
   type        = string
   description = "my external ip address"  
 }
+
+variable "content_version" {
+  description = "Content version number"
+  type        = number
+}

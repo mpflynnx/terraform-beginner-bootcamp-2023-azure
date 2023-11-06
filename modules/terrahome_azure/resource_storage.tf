@@ -26,6 +26,11 @@ resource "azurerm_storage_blob" "index_html" {
   content_type = "text/html"
   source = "${var.public_path}/index.html"
   content_md5 = filemd5("${var.public_path}/index.html")
+
+  lifecycle {
+    replace_triggered_by = [ terraform_data.content_version ]
+    ignore_changes = [ content_md5 ]
+  }
 }
 
 # Add a error.html file
@@ -38,9 +43,18 @@ resource "azurerm_storage_blob" "error_html" {
   source = "${var.public_path}/error.html"
 
   content_md5 = filemd5("${var.public_path}/error.html")
+
+  lifecycle {
+    replace_triggered_by = [ terraform_data.content_version ]
+    ignore_changes = [ content_md5 ]
+  }
 }
 
 data "azurerm_storage_account" "storage_data_source" {
   name = azurerm_storage_account.st.name
   resource_group_name = azurerm_resource_group.rg.name
+}
+
+resource "terraform_data" "content_version" {
+  input = var.content_version
 }

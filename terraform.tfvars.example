@@ -11,3 +11,5 @@ public_path="./public"
 user_uuid = "256ceeb2-e547-42a5-af71-1556730567bd"
 
 cdn_sku = "Standard_Microsoft"
+
+content_version = 1
