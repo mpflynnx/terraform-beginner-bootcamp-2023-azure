@@ -3,7 +3,7 @@ terraform {
   #   organization = "mpflynnx"
 
   #   workspaces {
-  #     name = "terra-home-1"
+  #     name = "terrahome"
   #   }
   # }
 }
@@ -20,4 +20,5 @@ module "terrahome_azure" {
   public_path = var.public_path
   cdn_sku = var.cdn_sku
   my_ip_address = var.my_ip_address
+  content_version = var.content_version
 }
