@@ -9,6 +9,11 @@ The objectives of week 1 where:
 - Upload files to a storage account using Terraform.
 - Create a Content Delivery Network with Azure Front Door.
 - Assign a Web application Firewall (WAF) policy to Front Door.
+- Automate Terraform with GitHub Actions
+- Understand Data Sources.
+- Understand the Lifecycle Meta Argument
+- Implement content versioning
+- Understand terraform_data resource type
 
 <!-- <p align="center">
 
@@ -55,12 +60,24 @@ The objectives of week 1 where:
   - [Security policy](#security-policy)
   - [Testing the WAF policy](#testing-the-waf-policy)
   - [Disable a WAF policy](#disable-a-waf-policy)
+- [Automate Terraform with GitHub Actions](#automate-terraform-with-github-actions)
+  - [Set up Terraform Cloud to use a GitHub Action](#set-up-terraform-cloud-to-use-a-github-action)
+  - [Configure Terraform Cloud](#configure-terraform-cloud)
+  - [Adding Workspace-specific Variables](#adding-workspace-specific-variables)
+  - [Create an API Token](#create-an-api-token)
+  - [Setting up the GitHub repository](#setting-up-the-github-repository)
+  - [Create actions workflows](#create-actions-workflows)
+  - [Destroying resources](#destroying-resources)
+- [The lifecycle Meta-Argument](#the-lifecycle-meta-argument)
+- [Trigger update by a variable change](#trigger-update-by-a-variable-change)
+  - [The terraform_data Managed Resource Type](#the-terraform_data-managed-resource-type)
+
 
 - [External References](#external-references)
 
 ## Terraform Cloud execution modes
 
-By default Terraform Cloud sets the default execution mode to 'Remote'. This means plans and applies occur on Terraform Cloud's infrastructure. This is great for teams as developers can have the ability to review and collaborate on runs within the app. As a lone developer, the overhead of running on Terraform Clouds infrastructure may not be needed. Therefore 'local' mode is a good option. Plans and applies occur on out local machines under our control. Terraform Cloud is only used to store and synchronize state.
+By default Terraform Cloud sets the default execution mode to 'Remote'. This means plans and applies occur on Terraform Cloud's infrastructure. This is great for teams as developers can have the ability to review and collaborate on runs within the app. As a lone developer, the overhead of running on Terraform Clouds infrastructure may not be needed. Therefore 'local' mode is a good option. Plans and applies occur on out local machines under my control. Terraform Cloud is only used to store and synchronize state.
 
 ### Change the execution mode for a Terraform Cloud workspace
 Previously I created a workspace in Terraform Cloud called 'terra-home-1', to change the execution mode I followed these steps:
@@ -98,19 +115,12 @@ $ project root/
 
 Terraform reads all *.tf files in the root folder.
 
-<!-- ## Refactor main.tf file
-We will refactor our main.tf into the minimal module structure as recommended.
-
-We will copy the providers block from main.tf and paste it into a new file provider.tf.
-
-We will copy the outputs block from main.tf and paste it into a new file outputs.tf -->
-
 ## Terraform variables
-We will create a 'user_uuid' variable and use it to tag our existing storage account. Terraform provides many ways for us to use variables.
+I will create a 'user_uuid' variable and use it to tag my existing storage account. Terraform provides many ways for us to use variables.
 
 Terraform variables also referred to as Input variables[<sup>[2]</sup>](#external-references) let you customise aspects of Terraform modules without altering the module's own source code.
 
-When you declare variables in the root module of your configuration, you can set their values using CLI -var option, environment variables, a .tfvars file or in a Terraform Cloud workspace as Terraform variables.
+When I declare variables in the root module of my configuration, I can set their values using CLI -var option, environment variables, a .tfvars file or in a Terraform Cloud workspace as Terraform variables.
 
 The variables.tf is where the variable block should be defined.
 
@@ -181,11 +191,11 @@ variable "user_uuid" {
 
 ### Tagging a Storage account using a variable
 
-We have previously ran 'tf plan', and deployed a storage account. The state file is stored in Terraform Cloud.
+I have previously ran 'tf plan', and deployed a storage account. The state file is stored in Terraform Cloud.
 
-We will tag the existing storage account with a variable named 'user_uuid'. The 'variables.tf' file defines and validates the value of the 'user_uuid' provided in the 'terraform.tfvars' file.
+I will tag the existing storage account with a variable named 'user_uuid'. The 'variables.tf' file defines and validates the value of the 'user_uuid' provided in the 'terraform.tfvars' file.
 
-To add this tag we update the 'main.tf' files resource block with the tag block shown below.
+To add this tag I shall update the 'main.tf' files resource block with the tag block shown below.
 
 ####  main.tf
 ```tf
@@ -242,7 +252,7 @@ Modules[<sup>[4]</sup>](#external-references) are containers for multiple resour
 
 Modules are the main way to package and reuse resource configurations with Terraform.
 
-We will refactor the project to use nested modules. We will create one module named 'terrahome_azure' and two nested modules, one for the storage resources and one for the content delivery resources.
+I will refactor the project to use nested modules. I will create one module named 'terrahome_azure' and two nested modules, one for the storage resources and one for the content delivery resources.
 
 ```
 $ project root/
@@ -271,7 +281,7 @@ A data source is accessed via a special kind of resource known as a data resourc
 
 ## Using Terraform to output the static website endpoint
 
-To obtain a storage accounts static website primary endpoint. We can use data source [azurerm_storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/storage_account).
+To obtain a storage accounts static website primary endpoint. I shall use data source [azurerm_storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/data-sources/storage_account).
 
 #### example usage
 ```tf
@@ -283,13 +293,13 @@ data "azurerm_storage_account" "storage_data_source" {
 
 A data block requests that Terraform read from a given data source ("azurerm_storage_account") and export the result under the given local name ("storage_data_source"). The name is used to refer to this resource from elsewhere in the same Terraform module, but has no significance outside of the scope of a module.
 
-For 'name' we need to define the storage account name. By defining the storage account name using expression references this will imply a dependency of the storage account on the data store.
+For 'name' I need to define the storage account name. By defining the storage account name using expression references this will imply a dependency of the storage account on the data store.
 
-for 'resource_group_name' we need to define the resource group of the storage account. By defining the resource group name using expression references this will imply a dependency of the resource group on the data source.
+for 'resource_group_name' I need to define the resource group of the storage account. By defining the resource group name using expression references this will imply a dependency of the resource group on the data source.
 
-If we didn't use expression references, and the storage account and resource group did not exist when the data source block is run, then terraform plan command would fail.
+If I didn't use expression references, and the storage account and resource group did not exist when the data source block is run, then terraform plan command would fail.
 
-With data sources we can use interpolation in the output block:
+With data sources I can use interpolation in the output block:
 
 ```tf
 output "primary_web_endpoint" {
@@ -410,9 +420,9 @@ A provider requirement says, for example, "This module requires version v3.76.0 
 
 ### Using Terraform to upload files
 
-The Azure provider resource [azurerm_storage_blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_blob) can be used to upload files to a storage account blob. We can use this to upload the index.html and error.html files for our static website. 
+The Azure provider resource [azurerm_storage_blob](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_blob) can be used to upload files to a storage account blob. I can use this to upload the initial index.html and error.html files for my static website. Thereafter I shall use a separate repository and use GitHub Actions to upload any updates to the websites content. 
 
-**Note:** It is best practice for Terraform to be used to provision cloud infrastructure only. Uploading files should be handled by another method or application in a production environment. 
+**Note:** It is best practice for Terraform to be used to provision cloud infrastructure only. Uploading files should be handled by another method or application in a production environment. I am using Terraform to upload the initial index.html and error.html only.
 
 #### Example nested module resource block (provider version 3.76.0)
 
@@ -427,19 +437,19 @@ resource "azurerm_storage_blob" "index_html" {
   content_md5 = filemd5("${var.public_path}/index.html")
 }
 ```
-It is best practice to define the content_type of the file, by using the [content_type](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_blob#content_type) argument.  Standard MIME types are supported. All Valid MIME Types are valid for this input. As we know our file contains html we use "text/html". Terraform can detect changes to the content_type argument.
+It is best practice to define the content_type of the file, by using the [content_type](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_blob#content_type) argument.  Standard MIME types are supported. All Valid MIME Types are valid for this input. As I know my file contains html I shall use "text/html". Terraform can detect changes to the content_type argument.
 
-By default, Terraform cannot detect any changes to a files contents. Therefore, we can add an [content_md5](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_blob#content_md5) to the file. The value will be the files md5 sum check. As the md5 sum check will change every time the file changes. Terraform does check for changes to content_md5.
+By default, Terraform cannot detect any changes to a files contents. Therefore, I can add an [content_md5](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_blob#content_md5) to the file. The value will be the files md5 sum check. As the md5 sum check will change every time the file changes. Terraform does check for changes to content_md5.
 
-Terraform has many [built-in functions](https://developer.hashicorp.com/terraform/language/expressions/function-calls). We will use the [filemd5](https://developer.hashicorp.com/terraform/language/functions/filemd5) function. 'filemd5' is a variant of md5 that hashes the contents of a given file rather than a literal string. This function will only accept UTF-8 text it cannot be used to create hashes for binary files.
+Terraform has many [built-in functions](https://developer.hashicorp.com/terraform/language/expressions/function-calls). I will use the [filemd5](https://developer.hashicorp.com/terraform/language/functions/filemd5) function. 'filemd5' is a variant of md5 that hashes the contents of a given file rather than a literal string. This function will only accept UTF-8 text it cannot be used to create hashes for binary files.
 
 ### Using Terraform to validate the existence of a file
 
-It is best practice to define files and file paths as Terraform variables. We can then validate the variable with a validation block in the nested modules variables.tf. 
+It is best practice to define files and file paths as Terraform variables. I can then validate the variable with a validation block in the nested modules variables.tf. 
 
 The Terraform built-in function [fileexists](https://developer.hashicorp.com/terraform/language/functions/fileexists) checks that a file already exists on the disk.
 
-We will store our file path as a variable in the terraform.tfvars file.
+I will store my file path as a variable in the terraform.tfvars file.
 
 ```
 public_path="/workspace/terraform-beginner-bootcamp-2023-azure/public"
@@ -481,11 +491,11 @@ A content delivery network (CDN)[<sup>[?]</sup>](#external-references) is a netw
 
 ### Azure Front Door
 
-Azure Front Door[<sup>[?]</sup>](#external-references) is Microsoft’s modern cloud Content Delivery Network (CDN) that provides fast, reliable, and secure access between your users and your applications’ static and dynamic web content across the globe.
+Azure Front Door[<sup>[?]</sup>](#external-references) is Microsoft’s modern cloud Content Delivery Network (CDN) that provides fast, reliable, and secure access between users and applications’ static and dynamic web content across the globe.
 
 ### Using Terraform to create an Azure Front Door Standard profile
 
-To make our Terraform project folder more manageable, we will refactor our nested module main.tf into two separate files. One file (resource_storage.tf) will deal with the Azure storage account resources and the second file (resource_cdn.tf) will deal with the Azure Front Door resources.
+To make my Terraform project folder more manageable, I will refactor my nested module main.tf into two separate files. One file (resource_storage.tf) will deal with the Azure storage account resources and the second file (resource_cdn.tf) will deal with the Azure Front Door resources.
 
 #### Project folder after refactor
 ```
@@ -508,13 +518,13 @@ $ project root/
 ```
 
 
-We want to use Front Door to distribute our content, so we first have to create a Front Door profile[<sup>[?]</sup>](#external-references). 
+I want to use Front Door to distribute my content, so I first have to create a Front Door profile[<sup>[?]</sup>](#external-references). 
 
-To create a Front Door profile we can use the Azure provider resource [azurerm_cdn_frontdoor_profile](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_profile).
+To create a Front Door profile I can use the Azure provider resource [azurerm_cdn_frontdoor_profile](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_profile).
 
 Caution: Provider resources can change frequently, it is best practice to always refer to the latest documentation for the provider at registry.terraform.io
 
-To create a profile we are only required to provide a name, resource group and the sku_name.
+To create a profile I'm only required to provide a name, resource group and the sku_name.
 
 #### resource_cdn.tf
 
@@ -534,7 +544,7 @@ Local values are created by a locals block (plural), but you reference them as a
 
 A local value can only be accessed in expressions within the module where it was declared. Therefore the example below should appear in the same file but before the azurerm_cdn_frontdoor_profile resource block were it is accessed.
 
-We will create more local values for use in resource_cdn.tf
+I will create more local values for use in resource_cdn.tf
 
 #### resource_cdn.tf
 ```tf
@@ -551,13 +561,13 @@ locals {
 }
 ```
 
-For our local value front_door_endpoint_name we will use the [Random Provider - random_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) resource to help us create a unique name for our Front Door endpoint.
+For my local value front_door_endpoint_name I will use the [Random Provider - random_id](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) resource to help us create a unique name for my Front Door endpoint.
 
 ### Front Door Endpoint
 
-In Azure Front Door, an [endpoint](https://learn.microsoft.com/en-us/azure/frontdoor/endpoint?tabs=azurecli) is a logical grouping of one or more routes that are associated with domain names. Each endpoint is assigned a domain name by Front Door, and you can associate your own custom domains by using routes.
+In Azure Front Door, an [endpoint](https://learn.microsoft.com/en-us/azure/frontdoor/endpoint?tabs=azurecli) is a logical grouping of one or more routes that are associated with domain names. Each endpoint is assigned a domain name by Front Door, and I can associate my own custom domains by using routes.
 
-We need to configure an endpoint for our Front Door profile. To do this we will use the [azurerm_cdn_frontdoor_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_endpoint) resource.
+I need to configure an endpoint for my Front Door profile. To do this I will use the [azurerm_cdn_frontdoor_endpoint](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_endpoint) resource.
 
 #### resource_cdn.tf
 ```tf
@@ -567,21 +577,21 @@ resource "azurerm_cdn_frontdoor_endpoint" "my_endpoint" {
 }
 ```
 
-Once again we use a local 'front_door_endpoint_name' defined earlier for the endpoint name.
+Once again I will use a local 'front_door_endpoint_name' defined earlier for the endpoint name.
 
-We obtain the cdn_frontdoor_profile_id from the Front Door Profile within which this Front Door Endpoint should exist, i.e 'my_front_door'
+I can obtain the cdn_frontdoor_profile_id from the Front Door Profile within which this Front Door Endpoint should exists, i.e 'my_front_door'
 
 ### Origins and Origin Groups
 
-An [origin](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#origin) refers to the application deployment that Azure Front Door retrieves contents from when caching isn't enabled or when a cache gets missed. The origin should be viewed as the endpoint for your application backend. In our case the origin will be the static website hostname.
+An [origin](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#origin) refers to the application deployment that Azure Front Door retrieves contents from when caching isn't enabled or when a cache gets missed. The origin should be viewed as the endpoint for my application backend. In my case the origin will be the static website hostname.
 
-An [origin group](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#origin-group) in Azure Front Door refers to a set of origins that receives similar traffic for their application. You can define the origin group as a logical grouping of your application instances across the world that receives the same traffic and responds with an expected behavior. These origins can be deployed across different regions or within the same region. All origins can be deployed in an Active/Active or Active/Passive configuration.
+An [origin group](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#origin-group) in Azure Front Door refers to a set of origins that receives similar traffic for their application. I can define the origin group as a logical grouping of my application instances across the world that receives the same traffic and responds with an expected behaviour. These origins can be deployed across different regions or within the same region. All origins can be deployed in an Active/Active or Active/Passive configuration.
 
 An origin group defines how origins get evaluated by [health probes](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#health-probes). It also defines the [load balancing](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#load-balancing-settings) method between them.
 
-Firstly, we need to create an origin group for our origin. We will use the [azurerm_cdn_frontdoor_origin_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin_group) resource for this.
+Firstly, I need to create an origin group for my origin. I will use the [azurerm_cdn_frontdoor_origin_group](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin_group) resource for this.
 
-We need to provide a name for the origin group. We previously defined a local for this. We need to provide the profile id which we can retrieve from our my_front_door profile. We will use the default values for health probes and load balancing.
+I need to provide a name for the origin group. I previously defined a local for this. I need to provide the profile id which I can retrieve from my my_front_door profile. I will use the default values for health probes and load balancing.
 
 #### resource_cdn.tf
 ```tf
@@ -604,19 +614,19 @@ resource "azurerm_cdn_frontdoor_origin_group" "my_origin_group" {
 }
 ```
 
-Now we have the origin group defined, we need to create an origin. We will use the [azurerm_cdn_frontdoor_origin](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin) resource for this.
+Now I have the origin group defined, I need to create an origin. I will use the [azurerm_cdn_frontdoor_origin](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin) resource for this.
 
-We need to provide a name for the origin. We previously defined a local for this. We need to provide the origin group id which we can retrieve from our my_origin_group group.
+I need to provide a name for the origin. I previously defined a local for this. I need to provide the origin group id which I can retrieve from my my_origin_group group.
 
-Origin host name or host_name is where we provide the static website host name. We can retrieve this by using the primary_web_host attribute of [azurerm_storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account#primary_web_host). In our case the Host name will be something like:
+Origin host name or host_name is where I provide the static website host name. I can retrieve this by using the primary_web_host attribute of [azurerm_storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account#primary_web_host). In my case the Host name will be something like:
 
 ```
 "terraformaccount202310.z33.web.core.windows.net"
 ```
 
-We can define the [origin_host_header](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#origin-host-header). This is optional, as if unspecified the host_name is used. Requests that get forwarded by Azure Front Door to an origin include a host header field that the origin uses it to retrieve the targeted resource. Most app backends (Azure Web Apps, Blob storage, and Cloud Services) require the host header to match the domain of the backend. We will once again use the primary_web_host attribute of [azurerm_storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account#primary_web_host), as this will match our host_name.
+I can define the [origin_host_header](https://learn.microsoft.com/en-us/azure/frontdoor/origin?pivots=front-door-standard-premium#origin-host-header). This is optional, as if unspecified the host_name is used. Requests that get forwarded by Azure Front Door to an origin include a host header field that the origin uses it to retrieve the targeted resource. Most app backends (Azure Web Apps, Blob storage, and Cloud Services) require the host header to match the domain of the backend. I will once again use the primary_web_host attribute of [azurerm_storage_account](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account#primary_web_host), as this will match my host_name.
 
-We will use the default values for the remaining arguments.
+I will use the default values for the remaining arguments.
 
 #### resource_cdn.tf
 ```tf
@@ -637,11 +647,11 @@ resource "azurerm_cdn_frontdoor_origin" "my_static_website_origin" {
 
 ### Routes
 
-A [route](https://learn.microsoft.com/en-us/azure/frontdoor/front-door-route-matching?pivots=front-door-standard-premium) maps your domains and matching URL path patterns to a specific origin group. [Learn more](https://learn.microsoft.com/en-us/azure/frontdoor/how-to-configure-endpoints)
+A [route](https://learn.microsoft.com/en-us/azure/frontdoor/front-door-route-matching?pivots=front-door-standard-premium) maps my domains and matching URL path patterns to a specific origin group. [Learn more](https://learn.microsoft.com/en-us/azure/frontdoor/how-to-configure-endpoints)
 
-We need to have at least one configured route in order for traffic to route between our domains.
+I need to have at least one configured route in order for traffic to route between my domains.
 
-Endpoint hostname is a DNS name that helps prevent subdomain takeover. This name is used to access your resources through your Azure Front Door profile.
+Endpoint hostname is a DNS name that helps prevent subdomain takeover. This name is used to access my resources through my Azure Front Door profile.
 
 The endpoint name specifies a desired subdomain on Front Door's default domain (i.e. .z01.azurefd.net) to route traffic from that host via Front Door.
 
@@ -650,25 +660,25 @@ The endpoint name specifies a desired subdomain on Front Door's default domain (
 afd-f699d40bf1f94020-ftdngdh3h8ehgkgj.z01.azurefd.net
 ```
 
-We will use the [azurerm_cdn_frontdoor_route](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route) resource for this.
+I will use the [azurerm_cdn_frontdoor_route](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route) resource for this.
 
-We must provide argument values for name, cdn_frontdoor_endpoint_id, cdn_frontdoor_origin_group_id and cdn_frontdoor_origin_ids.
+I must provide argument values for name, cdn_frontdoor_endpoint_id, cdn_frontdoor_origin_group_id and cdn_frontdoor_origin_ids.
 
-We previously defined a local for the route name 'front_door_route_name' we will use this for the route name. 
+I previously defined a local for the route name 'front_door_route_name' I will use this for the route name. 
 
-For cdn_frontdoor_endpoint_id, this is the resource ID of the Front Door Endpoint where this Front Door Route should exist. We will get this from my_endpoint. 
+For cdn_frontdoor_endpoint_id, this is the resource ID of the Front Door Endpoint where this Front Door Route should exist. I will get this from my_endpoint. 
 
-For cdn_frontdoor_origin_group_id. this is the resource ID of the Front Door Origin Group where this Front Door Route should be created. We will get this from my_origin_group.
+For cdn_frontdoor_origin_group_id. this is the resource ID of the Front Door Origin Group where this Front Door Route should be created. I will get this from my_origin_group.
 
-For cdn_frontdoor_origin_ids, this is the Front Door Origin resource ID that this Front Door Route will link to. We will get this from my_static_website_origin. The value can be made up of multiple origin ids so the ids are to be within square brackets [] and separated by a comma.
+For cdn_frontdoor_origin_ids, this is the Front Door Origin resource ID that this Front Door Route will link to. I will get this from my_static_website_origin. The value can be made up of multiple origin ids so the ids are to be within square brackets [] and separated by a comma.
 
 patterns_to_match is the route pattern of the rule. Accepts all requests using /*
 
-supported_protocols is the protocols to be supported by the route. We will support multiple hence ["Http", "Https"]
+supported_protocols is the protocols to be supported by the route. I will support multiple hence using ["Http", "Https"]
 
-We must define a validated domain that isn't associated with another route. We have a validated domain which is the endpoint hostname of the Azure Front Door profile. We set [link_to_default_domain](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route#link_to_default_domain) to true to link to the endpoint.
+I must define a validated domain that isn't associated with another route. I have a validated domain which is the endpoint hostname of the Azure Front Door profile. I set [link_to_default_domain](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_route#link_to_default_domain) to true to link to the endpoint.
 
-https_redirect_enabled, this is a [rule](https://learn.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine?pivots=front-door-standard-premium) and is the first to be executed. A Rule set can be used to allow customisation of how requests get processed and handled at the Azure Front Door edge. We will not define a rule set. We will however enable this rule to redirect all traffic to use HTTPS.
+https_redirect_enabled, this is a [rule](https://learn.microsoft.com/en-us/azure/frontdoor/front-door-rules-engine?pivots=front-door-standard-premium) and is the first to be executed. A Rule set can be used to allow customisation of how requests get processed and handled at the Azure Front Door edge. I will not define a rule set. I will however enable this rule to redirect all traffic to use HTTPS.
 
 #### resource_cdn.tf
 ```tf
@@ -689,21 +699,21 @@ resource "azurerm_cdn_frontdoor_route" "my_route" {
 
 ## Web Application Firewall (WAF)
 
-[Web Application Firewall (WAF)](https://learn.microsoft.com/en-us/azure/web-application-firewall/) provides centralised protection of web applications from common exploits and vulnerabilities. We can deploy [WAF on Azure Front Door](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview).
+[Web Application Firewall (WAF)](https://learn.microsoft.com/en-us/azure/web-application-firewall/) provides centralised protection of web applications from common exploits and vulnerabilities. I can deploy [WAF on Azure Front Door](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview).
 
 Azure Web Application Firewall is natively integrated with Azure Front Door Premium with full capabilities.
-As we previously created a Azure Front Door profile using the Standard tier we can only use custom rules.
+As I previously created a Azure Front Door profile using the Standard tier, I can only use custom rules.
 
 ### WAF policy and rules
 
-We can configure a WAF policy and associate that policy to our Azure Front Door domains for protection. A WAF policy consists of two types of security rules:
+I shall configure a WAF policy and associate that policy to my Azure Front Door domains for protection. A WAF policy consists of two types of security rules:
 
 - Custom rules that the customer created. (Standard or Premium tier)
 - Managed rule sets that are a collection of Azure-managed preconfigured sets of rules. (Premium tier only)
 
 ### WAF modes
 
-We can configure our WAF policy to run in two modes:
+I can configure my WAF policy to run in two modes:
 
 - Detection: When a WAF runs in detection mode, it only monitors and logs the request and its matched WAF rule to WAF logs. It doesn't take any other actions. You can turn on logging diagnostics for Azure Front Door. When you use the portal, go to the Diagnostics section.
 - Prevention: In prevention mode, a WAF takes the specified action if a request matches a rule. If a match is found, no further rules with lower priority are evaluated. Any matched requests are also logged in the WAF logs.
@@ -711,7 +721,7 @@ We can configure our WAF policy to run in two modes:
 ### WAF custom rules
 Our WAF policy will consist of custom security rule.
 
-We can configure [custom rules](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview#custom-authored-rules) for a WAF, using the following controls:
+I can configure [custom rules](https://learn.microsoft.com/en-us/azure/web-application-firewall/afds/afds-overview#custom-authored-rules) for a WAF, using the following controls:
 
 - IP allow list and block list.
 - Geographic-based access control.
@@ -721,24 +731,24 @@ We can configure [custom rules](https://learn.microsoft.com/en-us/azure/web-appl
 
 ### IP restriction custom rule
 
-For this project and ease of demonstration and testing, we shall create a IP restriction custom rule. The rule will when enabled, allow only one IP address to access the Azure Front Door domain all other addresses will receive a 403 forbidden response.
+For this project and ease of demonstration and testing, I shall create a IP restriction custom rule. The rule will when enabled, allow only one IP address to access the Azure Front Door domain all other addresses will receive a 403 forbidden response.
 
 ### Create a WAF policy using Terraform
 
-We will create a new configuration file named 'resource_security.tf' in our terrahome_azure module, here we shall create the WAF policy.
+I will create a new configuration file named 'resource_security.tf' in my terrahome_azure module, here I shall create the WAF policy.
 
-To create a WAF policy using Terraform we can use [azurerm_cdn_frontdoor_firewall_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_firewall_policy). This resource is dependent upon Azure resource group and Azure Front Door Profile resources.
+To create a WAF policy using Terraform I can use [azurerm_cdn_frontdoor_firewall_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_firewall_policy). This resource is dependent upon Azure resource group and Azure Front Door Profile resources.
 
-Our policy shall contain one custom rule named 'FdWafCustRule'. This rule will only allow one IP address to access our Front Door Domain. We are doing this to best demonstate how a WAF policy works. The allowed IP address will be your public IP address. You can find your public IP address from [dnsleaktest.com](https://dnsleaktest.com/). Your public IP address may change frequently so best to check frequently.
+Our policy shall contain one custom rule named 'FdWafCustRule'. This rule will only allow one IP address to access my Front Door Domain. I am doing this to best demonstrate how a WAF policy works. The allowed IP address will be my public IP address. I can find my public IP address from [dnsleaktest.com](https://dnsleaktest.com/). My public IP address may change frequently so best to check frequently.
 
-We will store the IP address as an environmental variable named 'TF_VAR_my_ip_address'. Substitute the fake IP address with your IP address.
+I will store the IP address as an environmental variable named 'TF_VAR_my_ip_address'. Substitute the fake IP address with my IP address.
 
 ```bash
 export TF_VAR_my_ip_address="12.345.678.910" # fake IP address
 gp env TF_VAR_my_ip_address="12.345.678.910" # fake IP address
 ```
 
-We must now define the new variable in the root modules variables.tf files as well as the nested module terrahome_azure variables.tf
+I must now define the new variable in the root modules variables.tf files as well as the nested module terrahome_azure variables.tf
 
 #### variables.tf
 ```tf
@@ -762,7 +772,7 @@ module "terrahome_azure" {
 }
 ```
 
-We can then reference the variable in our waf policy resource block.
+I can then reference the variable in my waf policy resource block.
 
 #### resource_security.tf
 ```tf
@@ -799,13 +809,13 @@ resource "azurerm_cdn_frontdoor_firewall_policy" "my_waf_policy" {
 
 ### Security policy
 
-Now we have created a WAF policy we need to associate it with our Front Door profile and domain. We do this using a Security policy.
+Now I have created a WAF policy I need to associate it with my Front Door profile and domain. I do this using a Security policy.
 
 A security policy includes a web application firewall (WAF) policy and one or more domains to provide centralised protection.
 
-To create a security policy using Terraform we can use [azurerm_cdn_frontdoor_security_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_security_policy).
+To create a security policy using Terraform I can use [azurerm_cdn_frontdoor_security_policy](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_security_policy).
 
-For this we need to provide a security policy name which must be unique within the Front Door. We will use the random provider to generate a random name for the policy.
+For this I need to provide a security policy name which must be unique within the Front Door. I will use the random provider to generate a random name for the policy.
 
 #### resource_security.tf
 ```tf
@@ -819,7 +829,7 @@ locals {
 }
 ```
 
-We also need to provide the Front Door policy ID, WAF policy ID and domain ID.
+I also need to provide the Front Door policy ID, WAF policy ID and domain ID.
 
 #### resource_security.tf
 ```tf
@@ -844,7 +854,7 @@ resource "azurerm_cdn_frontdoor_security_policy" "my_security_policy" {
 
 ### Testing the WAF policy
 
-We should be able to browse to our Front Door endpoint hostname with no errors, as we are only allowing one IP address to access this hostname. We can test the WAF policy by changing our environmental variable 'my_ip_address' to the fake IP address, as shown below.
+I should be able to browse to my Front Door endpoint hostname with no errors, as I am only allowing one IP address to access this hostname. I can test the WAF policy by changing the environmental variable 'my_ip_address' to the fake IP address, as shown below.
 
 ```bash
 export TF_VAR_my_ip_address="12.345.678.910" # Use the fake IP address
@@ -865,7 +875,7 @@ The request is blocked.
 You have successfully implemented and tested a WAF policy.
 
 ### Disable a WAF policy
-Going forward, we do not need to implement this WAF policy, so we should disable it. We can do this by changing 'enabled' argument value to 'false' for the policy.
+Going forward, I do not need to implement this WAF policy, so I shall disable it. I can do this by changing 'enabled' argument value to 'false' for the policy.
 
 ```tf
 resource "azurerm_cdn_frontdoor_firewall_policy" "my_waf_policy" {
@@ -875,9 +885,219 @@ resource "azurerm_cdn_frontdoor_firewall_policy" "my_waf_policy" {
   enabled                           = false
 
   ...
+}
 ```
 
 Rerun terraform apply, to implement this.
+
+## Automate Terraform with GitHub Actions
+
+Currently I have been running Terraform in my development environment. I have now setup the infrastructure and have successfully tested the deployment using Terraform. Going forward, I plan to use GitHub Actions to run a Terraform Plan and a Terraform Apply should I need to amend the infrastructure.
+
+GitHub Actions add continuous integration to GitHub repositories to automate software builds, tests, and deployments. Automating Terraform with CI/CD enforces configuration best practices, promotes collaboration, and automates the Terraform workflow.
+
+HashiCorp provides GitHub Actions that integrate with the Terraform Cloud API. These actions let me create my own custom CI/CD workflows to meet my needs.
+
+I will use HashiCorp's Terraform Cloud GitHub Actions to create a complete Actions workflow to deploy Azure infrastructure within a Terraform Cloud workspace.
+
+The workflow will:
+
+- Generate a plan for every commit to a pull request branch, which I can review in Terraform Cloud.
+- Apply the configuration when I update the main branch.
+
+By using HashiCorp's Terraform Cloud GitHub Actions, I can create a custom workflow with additional steps before or after my Terraform operations.
+
+### Set up Terraform Cloud to use a GitHub Action
+
+The GitHub Action will connect to Terraform Cloud to plan and apply my configuration. Before I set up the Actions workflow, I must create a workspace, add my Azure credentials to the Terraform Cloud workspace, and generate a Terraform Cloud user API token.
+
+### Configure Terraform Cloud
+Go to [Terraform Cloud login](https://app.terraform.io/session)
+1. Login to Terraform Cloud account.
+1. Create a new [organization](https://app.terraform.io/app/organizations/new).
+1. Create a new  API-driven workflow [workspace](https://app.terraform.io/app/mpflynnx/workspaces/new).
+1. Give Workspace Name as terrahome. The name of the workspace is unique and used in tools, routing, and UI. Dashes, underscores, and alphanumeric characters are permitted. Learn more about [naming workspaces](https://www.terraform.io/docs/cloud/workspaces/naming.html)
+
+1. Select Project 'terraform-beginner-bootcamp-azure'. Give description of the workspace. Then click Create workspace.
+
+### Adding Workspace-specific Variables
+
+1. Open a browser tab and login to [Terraform cloud account](https://app.terraform.io/session).
+1. Go to workplace 'terrahome'.
+1. Click Variables on left hand pane.
+1. Scroll down to Workspace variables.
+1. Open another browser tab and login to my [Gitpod account](https://gitpod.io/login/).
+1. Go to Gitpod, User settings, then click [Variables](https://gitpod.io/user/variables). Here are the Azure credentials I added to my Gitpod account previously. I will copy them from here to the Terraform Cloud workspace.
+1. Go back onto the Terraform Cloud 'terrahome' workspace browser tab.
+1. Click + Add variable.
+1. Choose the variable category as environment.
+1. Create a new variable with key ARM_CLIENT_ID, copy the value from the Gitpod user settings browser tab.
+1. Mark the variable as sensitive. This prevents Terraform from displaying it in the Terraform Cloud UI and makes the variable write-only.
+1. Click Add variable.
+1. Repeat steps 8 to 12 for the remaining three ARM_ variables.
+1. I have now added my Service Principal credentials to the 'terrahome' workspace.
+1. Check that all variables have Category of 'env' and the value is marked as 'Sensitive - write only'.
+
+### Create an API Token
+
+1. Click on [Tokens](https://app.terraform.io/app/settings/tokens).
+
+1. Click on Create an API token. Give a description as 'GitHub Actions terrahome'. Set Expiration to 30 days. Click Generate Token.
+
+1. Copy the Token now, as you will not be able to see it again, if you close the [Tokens](https://app.terraform.io/app/settings/tokens) browser tab.
+
+### Setting up the GitHub repository
+
+1. Open a browser tab at the repository
+
+1. In the repository, navigate to the Settings page. Open the Secrets and variables menu, then select Actions.
+
+1. Now, select New repository secret. 
+1. Create a secret named TF_API_TOKEN
+1. Paste the Terraform Cloud API token you copied in the previous step as the value.
+
+### Create actions workflows
+
+Inside the repositories root folder open a terminal and run the following command to create a new folder:
+
+```bash
+mkdir -p .github/workflows
+```
+I will download template workflow files from the hashicorp-education organisations, [learn-terraform-github-actions](https://github.com/hashicorp-education/learn-terraform-github-actions) repository.
+
+Change to the workflow folder and run the following commands to create the action workflow yaml files by 
+
+```bash
+curl -O https://raw.githubusercontent.com/hashicorp-education/learn-terraform-github-actions/main/.github/workflows/terraform-apply.yml
+```
+
+```bash
+curl -O https://raw.githubusercontent.com/hashicorp-education/learn-terraform-github-actions/main/.github/workflows/terraform-plan.yml 
+```
+
+Edit the env: section of the two files. Replacing the  "YOUR-ORGANIZATION-HERE" and "learn-terraform-github-actions" with the name of the Terraform Cloud organization and workspace name respectively.
+
+Then, the configuration defines a terraform job, and grants the workflow permission to read the repository contents and write to pull requests.
+
+Now a Pull Request will trigger the Terraform Plan Actions workflow. When the workflow completes, it will add a comment with a link to the speculative plan. Click the Terraform Cloud Plan link to view the plan in Terraform Cloud.
+
+Merge the pull request.
+
+Click on the Terraform Apply workflow.
+
+Wait for the workflow to complete.
+
+Then, expand the Apply step, scroll to the bottom, and click the link next to View Run in Terraform Cloud.
+
+In Terraform Cloud, expand the Apply finished section. Terraform Cloud shows any resources it changed/created, and the Terraform outputs.
+
+### Destroying resources
+
+Now that I have provisioned and changed infrastructure with Terraform Cloud, a final stage of my infrastructure's lifecycle maybe to destroy it. Terraform Cloud allows me to destroy the infrastructure I have provisioned as a part of the standard workflow.
+
+- Go to the Terraform Cloud workspace settings
+- Then to Destruction and Deletion. 
+- Click Queue destroy plan.
+- Enter my workspace name and queue the plan.
+- Confirm and Apply the plan. This destroys all infrastructure managed by the workspace.
+
+## The lifecycle Meta-Argument
+By using the [lifecycle Meta-Argument](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#syntax-and-arguments) I can prevent Terraform from automatically making changes to the infrastructure.
+
+Currently, when I update the public/index.html file of my project and run a 'terraform plan' command, Terraform picks up the change to the index.html files content_md5, and will plan to upload the new version of the file. To have better control of when the file should be updated on the infrastructure I can use a lifecycle block and use [ignore_changes](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#ignore_changes) on the content_md5 of files.
+
+#### resource_storage.tf
+```tf
+resource "azurerm_storage_blob" "index_html" {
+  ..
+  ..
+  lifecycle {
+    ignore_changes = [ content_md5 ]
+  }
+}
+```
+
+## Trigger update by a variable change
+As I will be managing the content of the static website via another repository. I do not want Terraform to make a change to this content. As Terraform is used to set the initial index.html and error.html files. I do not want any updates provisioned by the state website content repository to be changed by this repository. I would like the 'terraform plan' command to only plan to update the index.html and error.html file when a variable changes.
+
+I will create a new variable called 'content_version' this variable will store only positive integers greater than zero.
+
+#### Nested module variables.tf with validation
+```tf
+variable "content_version" {
+  type        = number
+  description = "Content version number"
+  default     = 1
+  validation {
+    condition     = var.content_version > 0 && can(var.content_version)
+    error_message = "Content version must be a positive integer"
+  }
+}
+```
+
+I will update the root modules variables.tf and main.tf accordingly.
+
+#### root module main.tf additions
+```tf
+module "terrahome_azure" {
+  source = "./modules/terrahome_azure"
+  ..
+  content_version = var.content_version
+}
+```
+
+#### root module variables.tf additions
+```tf
+..
+
+variable "content_version" {
+  description = "Content version number"
+  type        = number
+}
+```
+
+As I'm using a local terraform.tfvars file for variables, I will set a valid value for the variable in this file.
+
+#### Root module terraform.tfvars
+```tf
+content_version = 1
+```
+
+### The terraform_data Managed Resource Type
+
+I will use the [terraform_data](https://developer.hashicorp.com/terraform/language/resources/terraform-data) resource as a means to keep track of the 'content_version' variable. 
+
+The terraform_data resource implements the standard resource lifecycle, but does not directly take any other actions. You can use the terraform_data resource without requiring or configuring a provider.
+
+The terraform_data resource is useful for storing values which need to follow a managed resource lifecycle, and for triggering provisioners when there is no other logical managed resource in which to place them.
+
+To use terraform_data I will create a new resource block in my nested modules resource_storage.tf file.
+
+#### resource_storage.tf
+```tf
+resource "terraform_data" "content_version" {
+  input = var.content_version
+}
+```
+
+I can now use this resource inside the lifecycle block to trigger on changes to the variable 'content_version'.
+
+By using the lifecycle [replace_triggered_by](https://developer.hashicorp.com/terraform/language/meta-arguments/lifecycle#replace_triggered_by) argument, I can trigger replacements when a change to the input value of resource 'content_version' occurs.
+
+Therefore, 'terraform plan' will ignore changes to a files content_md5, but it will plan to update the file, if the files content_md5 has changed and the 'content_version' variable has changed.
+
+#### resource_storage.tf
+```tf
+resource "azurerm_storage_blob" "index_html" {
+  ..
+  ..
+  lifecycle {
+    replace_triggered_by = [ terraform_data.content_version ]
+    ignore_changes = [ content_md5 ]
+  }
+}
+```
+
 
 ## External References
 - [Standard Module Structure](https://developer.hashicorp.com/terraform/language/modules/develop/structure) <sup>[1]</sup>
