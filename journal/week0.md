@@ -8,8 +8,9 @@ The objectives of week 0 where:
 - Register a Terraform Cloud account.
 - Setup Terraform Cloud, create new project and workspace.
 - Setup Terraform Cloud workspace variables for Azure Service Principal.
-- Use Terraform Random Provider to generate a unique Azure Storage account  name.
+- Use Terraform Random Provider to generate a unique Azure Storage account name.
 - Use Terraform Azure provider to provision an Azure Storage account and blob storage.
+- Setup Static Website Hosting on a storage account.
 - Terraform state file stored safely in Terraform Cloud.
 
 
@@ -112,7 +113,7 @@ With Gitpod, you have the following three types of [tasks](https://www.gitpod.io
 
 - before: Use this for tasks that need to run before init and before command. For example, customize the terminal or install global project dependencies.
 - init: Use this for heavy-lifting tasks such as downloading dependencies or compiling source code.
-- command: Use this to start your database or development server.
+- command: Use this to start a database or development server.
 
 ### Wait for commands to complete
 
@@ -138,13 +139,13 @@ run when the workspace is restarted. Gitpod executes the before and command task
 
 ## Terraform
 
-Terraform is an infrastructure as code tool. Terraform is a command line interface application written in GO. Terraform is cloud agnostic. We can learn it once and then use it to provision cloud resources on multiple different cloud providers. Terraform is able to store the state of the resources deployed. We can make changes to them or add new resources, without needing to repeat deployment. Terraform is configured by using a declarative file format known as HCL.
+Terraform is an infrastructure as code tool. Terraform is a command line interface application written in GO. Terraform is cloud agnostic. I can learn it once and then use it to provision cloud resources on multiple different cloud providers. Terraform is able to store the state of the resources deployed. I can make changes to them or add new resources, without needing to repeat deployment. Terraform is configured by using a declarative file format known as HCL.
 
 ### Terraform providers
 
 Terraform plugins called providers let Terraform interact with cloud platforms and other services via their application programming interfaces (APIs). You can find providers for many of the platforms and services like Azure and AWS in the [Terraform Registry Providers section](https://registry.terraform.io/browse/providers).
 
-The Terraform documentation is a great resource, with many examples. It should be consulted often when writing HCL for your chosen provider.
+The Terraform documentation is a great resource, with many examples. It should be consulted often when writing HCL for my chosen provider.
 
 - [Terraform Azure provider documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)
 
@@ -185,7 +186,7 @@ UBUNTU_CODENAME=jammy
 
 The commands needed to install Terraform CLI are for Linux Ubuntu/Debian are described [here](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli#install-terraform).
 
-As there are multiple command lines needed to install Terraform CLI, we shall not clutter the .gitpod.yml with these commands, but shall create a bash script.
+As there are multiple command lines needed to install Terraform CLI, I will  not clutter the .gitpod.yml with these commands, but shall create a bash script.
 
 ### Bash script files 
 
@@ -324,7 +325,7 @@ on linux_amd6
 
 ### Refactor the .gitpod.yml file for install_terraform_cli
 
-Remove the four lines of bash commands installing terraform from the init task.
+I removed the four lines of bash commands installing terraform from the init task.
 
 Rename init task to before task. 
 ```yml
@@ -342,11 +343,11 @@ This command will execute the install_terraform_cli bash script.
 
 Bash scripts that may download files or update system packages are best not executed in the project root folder, as some stray files may accidentally make it into version control. 
 
-To avoid this we should change the working folder to a folder outside of version control either before running the script or during.
+To avoid this I shall change the working folder to a folder outside of version control either before running the script or during.
 
-Upon script completion we should then change back to the project root folder.
+Upon script completion I shall then change back to the project root folder.
 
-We can define the project root folder as an environmental variable. We can then use this variable inside our script.
+I can define the project root folder as an environmental variable. I can then use this variable inside my script.
 
 
 ### Environmental variables
@@ -391,7 +392,7 @@ unset PROJECT_ROOT
 
 To persist an environmental variable across restarts or new shells, the variable needs to be defined in a special file or location.
 
-Depending on your Linux OS, this file may be .bashrc or .profile or perhaps use both, refer to the documentation for your operating system. 
+Depending on the Linux OS, this file may be .bashrc or .profile or perhaps use both, refer to the documentation for the operating system. 
 
 If environmental variables are used, it is best practice to create a file called .env.example
 and place the actual variable name with fake values inside this file. Other developers will then know they may need to update or set
@@ -399,7 +400,7 @@ the variable value according to there environment or security credentials.
 
 ### Gitpod environmental variables
 
-Gitpod supports encrypted, user-specific environment variables[<sup>[2]</sup>](#external-references). They are stored as part of your user settings and can be used to set access tokens, or pass any other kind of user-specific information to your workspaces.
+Gitpod supports encrypted, user-specific environment variables[<sup>[2]</sup>](#external-references). They are stored as part of my user settings and can be used to set access tokens, or pass any other kind of user-specific information to my workspaces.
 
 Setting user-specific environment variables
 
@@ -409,31 +410,31 @@ Using the command: gp env
 gp env PROJECT_ROOT='/workspace/terraform-beginner-bootcamp-2023-azure'
 ```
 
-Beware that this does not modify your current terminal session, but rather persists this variable for the next workspace on this repository. gp can only interact with the persistent environment variables for this repository, not the environment variables of your terminal. If you want to set that environment variable in your terminal, you can do so using -e:
+Beware that this does not modify my current terminal session, but rather persists this variable for the next workspace on this repository. gp can only interact with the persistent environment variables for this repository, not the environment variables of my terminal. If I want to set that environment variable in my terminal, I can do so using -e
 
-The gp CLI prints and modifies the persistent environment variables associated with your user for the current repository.
+The gp CLI prints and modifies the persistent environment variables associated with my user for the current repository.
 
 ### Terraform CLI fundamentals
 
-We use the Terraform Command Line Interface (CLI) to manage infrastructure, and interact with Terraform state, providers, configuration files, and Terraform Cloud.
+I will use the Terraform Command Line Interface (CLI) to manage infrastructure, and interact with Terraform state, providers, configuration files, and Terraform Cloud.
 
-The core Terraform workflow[<sup>[3]</sup>](#external-references) consists of three main steps after you have written your Terraform configuration:
+The core Terraform workflow[<sup>[3]</sup>](#external-references) consists of three main steps after I have written my Terraform configuration:
 
 - Initialize prepares the working directory so Terraform can run the configuration.
-- Plan enables you to preview any changes before you apply them.
-- Apply makes the changes defined by your Terraform configuration to create, update, or destroy resources.
+- Plan enables me to preview any changes before I apply them.
+- Apply makes the changes defined by my Terraform configuration to create, update, or destroy resources.
 
 ### Cloud provider resource names
 
-When creating resources in the cloud, you mostly always need to provide a unique name that complies with the cloud providers naming convention for that resource. Hard coding a unique name is not advisable. It is best to use a tool to create a random name. In Terraform we can use [Random Provider - random_string](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) to do this. Always check the naming rules with the cloud providers documentation. Terraform cannot check naming rules or names availability.
+When creating resources in the cloud, you mostly always need to provide a unique name that complies with the cloud providers naming convention for that resource. Hard coding a unique name is not advisable. It is best to use a tool to create a random name. In Terraform I can use [Random Provider - random_string](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/string) to do this. Always check the naming rules with the cloud providers documentation. Terraform cannot check naming rules or names availability.
 
 ### A simple main.tf example
 
 This main.tf file uses the Hashicorp Random Provider, to generate a unique 24 character lower case string. This string will comply with the [Storage account name](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview#storage-account-name) for an Azure Storage account. 
 
-We use the "random_string" resource to generate a random 16 character string identified as **name**. 
+I shall use the "random_string" resource to generate a random 16 character string identified as **name**. 
 
-We define one output "random_bucket_name" that is the .result of the "random_string" resource.
+I will define one output "random_bucket_name" that is the .result of the "random_string" resource.
 
 main.tf
 ```hcl
@@ -481,7 +482,7 @@ One new file is created:-
 
 - .terraform.lock.hcl 
 
-The .terraform.lock.hcl file ensures that Terraform uses the same provider versions across your team and in ephemeral remote execution environments. During initialization, Terraform will download the provider versions specified by this file rather than the latest versions. This file should be under version control.
+The .terraform.lock.hcl file ensures that Terraform uses the same provider versions across the team and in ephemeral remote execution environments. During initialization, Terraform will download the provider versions specified by this file rather than the latest versions. This file should be under version control.
 
 Now run the following command.
 
@@ -497,13 +498,13 @@ If everything looks good then run the following command.
 $ terraform apply --auto-approve
 ```
 
-Apply makes the changes defined by your Terraform configuration to create, update, or destroy resources. The use of **--auto-approve** removes the need for you to type 'yes' when prompted.
+Apply makes the changes defined by my Terraform configuration to create, update, or destroy resources. The use of **--auto-approve** removes the need for you to type 'yes' when prompted.
 
 One new file is created:-
 
 - terraform.tfstate 
 
-This State File contains full details of resources in our terraform code. When you modify something on your code and apply it on cloud, terraform will look into the state file, and compare the changes made in the code from that state file and the changes to the infrastructure based on the state file.[<sup>[6]</sup>](#external-references)  
+This State File contains full details of resources in my terraform code. When I modify something on my code and apply it on cloud, terraform will look into the state file, and compare the changes made in the code from that state file and the changes to the infrastructure based on the state file.[<sup>[6]</sup>](#external-references)  
 
 
 In the console there should be the output displaying the
@@ -515,7 +516,7 @@ Outputs:
 random_storage_account_name = "1ri2e8o13vorgt72gukhx4em"
 ```
 
-Now the resources have been applied, we can retrieve the value of the 'random_bucket_name' by using the following command.
+Now the resources have been applied, I can retrieve the value of the 'random_bucket_name' by using the following command.
 
 ```bash
 $ terraform output random_storage_account_name
@@ -526,7 +527,7 @@ Expected console output.
 "1ri2e8o13vorgt72gukhx4em"
 ```
 
-You can use Terraform outputs to connect your Terraform projects with other parts of your infrastructure, or with other Terraform projects.[<sup>[13]</sup>](#external-references)
+I can use Terraform outputs to connect my Terraform projects with other parts of my infrastructure, or with other Terraform projects.[<sup>[13]</sup>](#external-references)
 
 ### Terraform files and version control
 Your .gitignore file must contain exclusions for many of the generated Terraform folders and files. The only files needed to be under version control[<sup>[4]</sup>](#external-references) are:
@@ -547,7 +548,7 @@ The Azure Command-Line Interface (CLI) is a cross-platform command-line tool to 
 
 The commands used to install the Azure CLI for Linux are described [here](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-linux?pivots=apt#option-2-step-by-step-installation-instructions).
 
-As there are multiple command lines needed to install Azure CLI, we shall not clutter the .gitpod.yml with these commands, but shall create a bash script.
+As there are multiple command lines needed to install Azure CLI, I shall not clutter the .gitpod.yml with these commands, but shall create a bash script.
 
 
 ### install_azure_cli script
@@ -601,9 +602,9 @@ Example console output:
 
 ### Refactor the .gitpod.yml file for install_azure_cli
 
-We now have two scripts, which both use the apt package manager to install packages. If both scripts start at the same time one script will not complete due to apt creating a lock file which prevents other processes from using apt at the same time.
+I now have two scripts, which both use the apt package manager to install packages. If both scripts start at the same time one script will not complete due to apt creating a lock file which prevents other processes from using apt at the same time.
 
-To get around this we can use Gitpod features [gp sync-done](https://www.gitpod.io/docs/references/gitpod-cli#sync-done) and [gp sync-await](https://www.gitpod.io/docs/references/gitpod-cli#sync-await)
+To get around this I can use Gitpod features [gp sync-done](https://www.gitpod.io/docs/references/gitpod-cli#sync-done) and [gp sync-await](https://www.gitpod.io/docs/references/gitpod-cli#sync-await)
 
 
 ```yml
@@ -629,7 +630,7 @@ Task, azure-cli will execute the install_azure_cli bash script only when the ter
 
 ## Terraform and Azure
 
-To use Azure with Terraform we need to add Azure to the providers block in the main.tf file. The code needed can be found on the Terraform registry webpage by searching for [Provider Azure](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs). Click on USE PROVIDER and copy the azurerm specific block, as shown below.
+To use Azure with Terraform I need to add Azure to the providers block in the main.tf file. The code needed can be found on the Terraform registry webpage by searching for [Provider Azure](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs). Click on USE PROVIDER and copy the azurerm specific block, as shown below.
 
 ```hcl
 azurerm = {
@@ -680,7 +681,7 @@ I have chosen to use a Service Principal and a client Secret for this project.
 
 Service Principal is an application within Azure Active Directory, which is authorised to access resources in Azure. This access is restricted by the roles assigned to the service principal, giving you control over which resources can be accessed and at which level.[<sup>[6]</sup>](#external-references)
 
-We wil create a Service Principal for developing this application. We need to access resources in our subscription and perform operations on them. The required role to achieve this is called **Contributor**. This role
+I wil create a Service Principal for developing this application. I need to access resources in my subscription and perform operations on them. The required role to achieve this is called **Contributor**. This role
 grants full access to manage all resources, but does not allow you to assign roles in Azure RBAC, manage assignments in Azure Blueprint.
 
 ### Creating a Service Principal using the Azure CLI
@@ -689,19 +690,19 @@ Launch a Gitpod workspace for the git branch you are working on.
 
 Enter the Azure CLI terminal.
 
-Login to your Azure subscription using the [az login](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively) command.
+Login to my Azure subscription using the [az login](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively) command.
 
 ```sh
 az login --use-device-code 
 ```
 
-We need to obtain your subscription id, use the [az account list](https://learn.microsoft.com/en-us/cli/azure/account?view=azure-cli-latest#az-account-list()) command.
+To obtain my subscription id, I shall use the [az account list](https://learn.microsoft.com/en-us/cli/azure/account?view=azure-cli-latest#az-account-list()) command.
 
 ```sh
 az account list
 ```
 
-Using the subscription id, we can create a Service Principal. Using the [az ad sp create-for-rbac](https://learn.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az-ad-sp-create-for-rbac) command.
+Using the subscription id, I can create a Service Principal. Using the [az ad sp create-for-rbac](https://learn.microsoft.com/en-us/cli/azure/ad/sp?view=azure-cli-latest#az-ad-sp-create-for-rbac) command.
 
 ```sh
 az ad sp create-for-rbac -n Gitpod --role Contributor
@@ -711,7 +712,7 @@ az ad sp create-for-rbac -n Gitpod --role Contributor
 #### Example console output
 ```sh
 $ Creating 'Contributor' role assignment under scope '/subscriptions/EXAMPLE3-464a-4687-a03a-82efdEXAMPLE'
-The output includes credentials that you must protect. Be sure that you do not include these credentials in your code or check the credentials into your source control. For more information, see https://aka.ms/azadsp-cli
+The output includes credentials that you must protect. Be sure that you do not include these credentials in my code or check the credentials into my source control. For more information, see https://aka.ms/azadsp-cli
 {
   "appId": "EXAMPLE3-464a-4687-a03a-82efdEXAMPLE",
   "displayName": "Gitpod",
@@ -728,7 +729,7 @@ These values map to the Terraform Azure provider variables like so:
 
 ### Adding Service Principal credentials to Gitpod workspace
 
-We need to create four environmental variables to use the Service Principal with the Terraform Azure provider.
+I need to create four environmental variables to use the Service Principal with the Terraform Azure provider.
 
 #### Example variables
 
@@ -740,15 +741,15 @@ ARM_SUBSCRIPTION_ID="20000000-0000-0000-0000-000000000000"
 ```
 
 **Important:**
-We should always surround our environmental variable values with single or double quotes. This prevents [bash interpreter interpolation](https://www.baeldung.com/linux/bash-escape-characters).
+I should always surround the environmental variable values with single or double quotes. This prevents [bash interpreter interpolation](https://www.baeldung.com/linux/bash-escape-characters).
 
 
-As detailed in section Gitpod environmental variables. We can assign persistent environment variables to the Gitpod workspace using
+As detailed in section Gitpod environmental variables. I can assign persistent environment variables to the Gitpod workspace using
 
 ```bash
 gp env ENVVAR_NAME="envvar-value"
 ```
-Therefore, we should enter the following in the Gitpod workspace terminal window. Substituting the fake values with the real values.
+Therefore, I should enter the following in the Gitpod workspace terminal window. Substituting the fake values with the real values.
 
 ```bash
 gp env ARM_CLIENT_ID="00000000-0000-0000-0000-000000000000"
@@ -765,7 +766,7 @@ env | grep ARM_
 
 ### Test the Service Principal credentials
 
-We can test our Service Principal credentials by logging in with them using the Azure CLI command shown below.
+I can test my Service Principal credentials by logging in with them using the Azure CLI command shown below.
 
 ```bash
 az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $ARM_TENANT_ID
@@ -794,7 +795,7 @@ az login --service-principal -u $ARM_CLIENT_ID -p $ARM_CLIENT_SECRET --tenant $A
 
 ## Azure storage account
 
-An [Azure storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) contains all of your Azure Storage data objects: blobs, files, queues, and tables. The storage account provides a unique namespace for your Azure Storage data that's accessible from anywhere in the world over HTTP or HTTPS. Data in your storage account is durable and highly available, secure, and massively scalable.
+An [Azure storage account](https://learn.microsoft.com/en-us/azure/storage/common/storage-account-overview) contains all of my Azure Storage data objects: blobs, files, queues, and tables. The storage account provides a unique namespace for my Azure Storage data that's accessible from anywhere in the world over HTTP or HTTPS. Data in my storage account is durable and highly available, secure, and massively scalable.
 
 Azure Storage offers several types of storage accounts. Each type supports different features and has its own pricing model.
 
@@ -802,35 +803,35 @@ Azure Storage offers several types of storage accounts. Each type supports diffe
 this is standard storage for blob, file shares, queues and tables
 
 - Premium block blobs
-this is supported for block and append blobs, this is when you
-want fast access to your blobs and high transaction rates
+this is supported for block and append blobs, this is when I
+want fast access to my blobs and high transaction rates
 
 - Premium page blobs
 for storing virtual hard disk vhd for you virtual machines
-when you want fast access to your blobs, high transaction rates
+when you want fast access to my blobs, high transaction rates
 
 - Premium file shares
 this is supported for file shares. this is when you want fast access
-to your files, high transaction rates
+to my files, high transaction rates
 
 For this project I will use Standard general purpose v2.
 
 ### Creating a storage account
 A storage account is an Azure Resource Manager resource. Resource Manager is the deployment and management service for Azure. For more information, see [Azure Resource Manager overview](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/overview).
 
-Every Resource Manager resource, including an Azure storage account, must belong to an Azure resource group. A resource group is a logical container for grouping your Azure services. When you create a storage account, you have the option to either create a new resource group, or use an existing resource group. This how-to shows how to create a new resource group.
+Every Resource Manager resource, including an Azure storage account, must belong to an Azure resource group. A resource group is a logical container for grouping my Azure services. When you create a storage account, you have the option to either create a new resource group, or use an existing resource group. I will create a new resource group.
 
 ### Creating a resource group with Terraform
 
-Firstly we must create a [resource group](https://learn.microsoft.com/en-gb/azure/azure-resource-manager/management/overview#resource-groups) for our project. All resources provisioned for this project shall be contained in this resource group.
+Firstly I must create a [resource group](https://learn.microsoft.com/en-gb/azure/azure-resource-manager/management/overview#resource-groups) for my project. All resources provisioned for this project shall be contained in this resource group.
 
-To create a resource group with Terraform we refer to the Terraform Azure provider documentation for resource groups[<sup>[7]</sup>](#external-references).
+To create a resource group with Terraform I refer to the Terraform Azure provider documentation for resource groups[<sup>[7]</sup>](#external-references).
 
-We copy the code block detailed in the documentation and update the values accordingly.
+I will copy the code block detailed in the documentation and update the values accordingly.
 
 ```hcl
 # Create a resource group
-resource "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "resource_group" {
   name     = "terraform-beginner-bootcamp-2023-azure"
   location = "UK South"
 }
@@ -838,17 +839,17 @@ resource "azurerm_resource_group" "rg" {
 
 ### Creating a general-purpose v2 storage account with Terraform
 
-To create a general-purpose v2 storage account with Terraform we refer to the Terraform Azure provider documentation for Azure Storage Account [<sup>[8]</sup>](#external-references).
+To create a general-purpose v2 storage account with Terraform I shall refer to the Terraform Azure provider documentation for Azure Storage Account [<sup>[8]</sup>](#external-references).
 
-We copy the code block detailed in the documentation and update the values accordingly.
+I will copy the code block detailed in the documentation and update the values accordingly.
 
 
 ```hcl
 # Create a storage account
-resource "azurerm_storage_account" "st" {
+resource "azurerm_storage_account" "storage_account" {
   name = "terraformaccount20231017105432"
-  resource_group_name = azurerm_resource_group.rg.name
-  location = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  location = azurerm_resource_group.resource_group.location
   account_tier = "Standard"
   account_replication_type = "LRS"
   account_kind = "StorageV2"
@@ -863,9 +864,9 @@ resource "azurerm_storage_account" "st" {
 name - (Required) Specifies the name of the storage account. Only lowercase Alphanumeric characters allowed. Changing this forces a new resource to be created. This must be unique across the entire Azure service, not just within the resource group
 
 To save typing the name of the resource group for every new resource
-created. I have used the .name suffix after azurerm_resource_group.rg.
+created. I can use [expression references](https://developer.hashicorp.com/terraform/language/expressions/references). I have used the .name suffix after azurerm_resource_group.resource_group. This also implies a dependency of the resource group on the storage account. This is the recommended way to imply dependencies.
 
-To save typing the location for every new resource created. I have used the .location suffix after azurerm_resource_group.rg
+To save typing the location for every new resource created. I have used the .location suffix after azurerm_resource_group.resource_group. This also implies a dependency of the resource group on the storage account.
 
 To allow the storage account to store a static website I have
 enabled it, by passing the following:-
@@ -879,17 +880,17 @@ enabled it, by passing the following:-
 
 ### Creating blob storage with Terraform
 
-As we are using the storage account to host a static website we must also create blob storage to store the websites pages and assets.
+As I'm using the storage account to host a static website I must also create blob storage to store the websites pages and assets.
 
-To create blob storage with Terraform we refer to the Terraform Azure provider documentation for blob storage [<sup>[9]</sup>](#external-references).
+To create blob storage with Terraform I shall refer to the Terraform Azure provider documentation for blob storage [<sup>[9]</sup>](#external-references).
 
-We copy the code block detailed in the documentation and update the values accordingly.
+I will copy the code block detailed in the documentation and update the values accordingly.
 
 ```hcl
 # Add a index.html file
 resource "azurerm_storage_blob" "blob" {
   name = "index.html"
-  storage_account_name = azurerm_storage_account.st.name
+  storage_account_name = azurerm_storage_account.storage_account.name
   storage_container_name = "$web"
   type = "Block"
   content_type = "text/html"
@@ -936,7 +937,7 @@ Retrieve the primary endpoint of the storage accounts static website, using comm
 ```bash
 az storage account show -g terraform-beginner-bootcamp-2023-azure -n terraformaccount202310 --query "primaryEndpoints.web"
 ```
-
+ 
 #### Example output
 ```bash
 "https://terraformaccount202310.z33.web.core.windows.net/"
@@ -945,7 +946,7 @@ az storage account show -g terraform-beginner-bootcamp-2023-azure -n terraformac
 Copy the primary endpoint and paste into a new browser tab. You should see the contents of the index.html file.
 
 ### Destroy infrastructure
-Now delete the Azure resources using terraform destroy. This command terminates resources managed by your Terraform project. This command is the inverse of terraform apply in that it terminates all the resources specified in your Terraform state. It does not destroy resources running elsewhere that are not managed by the current Terraform project.
+Now delete the Azure resources using terraform destroy. This command terminates resources managed by my Terraform project. This command is the inverse of terraform apply in that it terminates all the resources specified in my Terraform state. It does not destroy resources running elsewhere that are not managed by the current Terraform project.
 
 ```bash
 $ terraform destroy --auto-approve
@@ -955,7 +956,7 @@ The file below is updated:-
 
 - terraform.tfstate 
 
-This State File contains full details of resources in our terraform code. When you modify something on your code and apply it on cloud, terraform will look into the state file, and compare the changes made in the code from that state file and the changes to the infrastructure based on the state file.[<sup>[10]</sup>](#external-references)
+This State File contains full details of resources in my terraform code. When you modify something on my code and apply it on cloud, terraform will look into the state file, and compare the changes made in the code from that state file and the changes to the infrastructure based on the state file.[<sup>[10]</sup>](#external-references)
 
 Using Azure CLI check that the storage account no longer exists:
 
@@ -972,17 +973,17 @@ Message: Resource group 'terraform-beginner-bootcamp-2023-azure' could not be fo
 
 ## Terraform Cloud
 
-As mentioned the terraform.tfstate file is very important. It's important to protect your state file. If you lose the state file, Terraform will have no way to know what it built or what could be safe to delete or change.
+As mentioned the terraform.tfstate file is very important. It's important to protect my state file. If you lose the state file, Terraform will have no way to know what it built or what could be safe to delete or change.
 
-The default setting of Terraform is to store your state file on your local laptop or your workstation. This works great for a single developer or someone working alone on a project, but as soon as you have 2 or more people trying to work on the same project, this can become a problem.
+The default setting of Terraform is to store my state file on my local laptop or my workstation. This works great for a single developer or someone working alone on a project, but as soon as you have 2 or more people trying to work on the same project, this can become a problem.
 
-We will use a "remote state." This is a centrally stored state file where multiple uses can access the state of your infrastructure. Remote state can be stored either on cloud platform storage, like S3, or inside of Terraform Cloud.
+I will use a "remote state." This is a centrally stored state file where multiple users can access the state of the infrastructure. Remote state can be stored either on cloud platform storage, like S3, or inside of Terraform Cloud.
 
-Terraform Cloud provides all of the features we need to work with remote state, including locking, collaboration, and encryption.
+Terraform Cloud provides all of the features I need to work with remote state, including locking, collaboration, and encryption.
 
 ### Terraform Cloud pricing
 
-In the Free tier we get 500 resources per month, and do not need to provide a credit card. If we exceed 500 resources per month we will switch to the Standard tier. The Standard tier requires a credit card to be registered.[<sup>[11]</sup>](#external-references)
+In the Free tier I get 500 resources per month, and do not need to provide a credit card. If I exceed 500 resources per month I will switch to the Standard tier. The Standard tier requires a credit card to be registered.[<sup>[11]</sup>](#external-references)
 
 ### Register for a new Terraform Cloud account
 Go to webpage [terraform.io](https://www.terraform.io/)
@@ -993,11 +994,11 @@ Go to webpage [terraform.io](https://www.terraform.io/)
 
 ### Configure Terraform Cloud
 Go to [Terraform Cloud login](https://app.terraform.io/session)
-- Login to your Terraform Cloud account.
+- Login to my Terraform Cloud account.
 - Create a new [organization](https://app.terraform.io/app/organizations/new).
 - Create a new [Project](https://app.terraform.io/app/mpflynnx/workspaces). Click on New and select Project from dropdown. Give a project name as 'terraform-beginner-bootcamp-azure'. Click Create button.
 - Create a new CLI-driven workflow [workspace](https://app.terraform.io/app/mpflynnx/workspaces/new).
-- Give Workspace Name as terra-home-1. The name of your workspace is unique and used in tools, routing, and UI. Dashes, underscores, and alphanumeric characters are permitted. Learn more about [naming workspaces](https://www.terraform.io/docs/cloud/workspaces/naming.html)
+- Give Workspace Name as terra-home-1. The name of my workspace is unique and used in tools, routing, and UI. Dashes, underscores, and alphanumeric characters are permitted. Learn more about [naming workspaces](https://www.terraform.io/docs/cloud/workspaces/naming.html)
 
 - Select Project 'terraform-beginner-bootcamp-azure'. Give description. of workspace. The click Create workspace.
 - Open a Gitpod workspace for the project.
@@ -1044,11 +1045,11 @@ $ env | grep TERRAFORM_
 
 ### Gitpod problems with Terraform login command
 
-The command ['Terraform login'](https://developer.hashicorp.com/terraform/cli/commands/login), wants to request an API token for app.terraform.io using your internet browser. We are using Gitpod workspace for this project so this will not work. We must come up with another solution for this.
+The command ['Terraform login'](https://developer.hashicorp.com/terraform/cli/commands/login), wants to request an API token for app.terraform.io using my internet browser. I am using a Gitpod workspace for this project so this will not work. I must come up with another solution for this.
 
 By default, Terraform will obtain an API token and save it in plain text in a local CLI configuration file called credentials.tfrc.json. 
 
-The location of our file is:
+The location of my file is:
 ```bash
 $ /home/gitpod/.terraform.d/credentials.tfrc.json
 ```
@@ -1065,7 +1066,7 @@ The structure of this file is:
 ```
 ### generate_tfrc_credentials bash script
 
-As we are using Gitpod, we need a way of creating the credentials.tfrc.json file on the creation of every new Gitpod workspace. To do this we shall write a bash script. The bash script shall do the following:
+As I'm using Gitpod, I need a way of creating the credentials.tfrc.json file on the creation of every new Gitpod workspace. To do this I shall write a bash script. The bash script shall do the following:
 - Create a new folder, '.terraform.d', if it doesn't exist
 - Create a new file, 'credentials.tfrc.json', if it doesn't exist.
 - Use the cat command to build the json block, obtaining the persistent Gitpod environmental variable $TERRAFORM_CLOUD_TOKEN from the local environment.
@@ -1105,18 +1106,18 @@ Initializing Terraform Cloud...
 Terraform Cloud has been successfully initialized!
 
 You may now begin working with Terraform Cloud. Try running "terraform plan" to
-see any changes that are required for your infrastructure.
+see any changes that are required for my infrastructure.
 
 If you ever set or change modules or Terraform Settings, run "terraform init"
-again to reinitialize your working directory.
+again to reinitialize my working directory.
 ```
 
 ### Terraform Cloud Workspace variables
-Terraform Cloud by default uses remote execution mode. Remote mode runs on disposable Linux worker VMs using a POSIX-compatible shell. Before running Terraform operations, Terraform Cloud uses the export command to populate the shell with environment variables. These environment variables can store our Service Principal credentials.
+Terraform Cloud by default uses remote execution mode. Remote mode runs on disposable Linux worker VMs using a POSIX-compatible shell. Before running Terraform operations, Terraform Cloud uses the export command to populate the shell with environment variables. These environment variables can store my Service Principal credentials.
 
 Terraform Cloud lets you define input and environment variables using either workspace-specific variables, or sets of variables that you can reuse in multiple workspaces. [Variable sets](https://developer.hashicorp.com/terraform/tutorials/cloud-get-started/cloud-create-variable-set) allow you to avoid redefining the same variables across workspaces, so you can standardize common configurations. 
 
-For this project we will define our Service Principal credentials as [workspace-specific variables](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables). 
+For this project I will define my Service Principal credentials as [workspace-specific variables](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables). 
 
 **Precedence**[<sup>[12]</sup>](#external-references)
 
@@ -1124,12 +1125,12 @@ The credentials will apply only to the to a single 'terra-home-1' workspace. Wor
 
 ### Adding Workspace-specific Variables
 
-1. Open a browser tab and login to your [Terraform cloud account](https://app.terraform.io/session).
+1. Open a browser tab and login to my [Terraform cloud account](https://app.terraform.io/session).
 1. Go to workplace 'terra-home-1'.
 1. Click Variables on left hand pane.
 1. Scroll down to Workspace variables.
-1. Open another browser tab and login to your [Gitpod account](https://gitpod.io/login/).
-1. Go to Gitpod, User settings, then click [Variables](https://gitpod.io/user/variables). Here are the Azure credentials we added to our Gitpod account previously. We will copy them for here to the Terraform Cloud workspace.
+1. Open another browser tab and login to my [Gitpod account](https://gitpod.io/login/).
+1. Go to Gitpod, User settings, then click [Variables](https://gitpod.io/user/variables). Here are the Azure credentials I added to my Gitpod account previously. I will copy them from here to the Terraform Cloud workspace.
 1. Go back onto the Terraform Cloud 'terra-home-1' workspace browser tab.
 1. Click + Add variable.
 1. Choose the variable category as environment.
@@ -1137,8 +1138,8 @@ The credentials will apply only to the to a single 'terra-home-1' workspace. Wor
 1. Mark the variable as sensitive. This prevents Terraform from displaying it in the Terraform Cloud UI and makes the variable write-only.
 1. Click Add variable.
 1. Repeat steps 8 to 12 for the remaining three ARM_ variables.
-1. We have now added our Service Principal credentials to the 'terra-home-1' workspace.
-1. Check that all variables have Category of 'env' and thr value is marked as 'Sensitive - write only'.
+1. I have now added my Service Principal credentials to the 'terra-home-1' workspace.
+1. Check that all variables have Category of 'env' and the value is marked as 'Sensitive - write only'.
 
 ### Terraform Cloud setup confirmation
 If you have previously stopped a Gitpod workspace, then open a new Gitpod workspace from the Github project main branch.
@@ -1149,26 +1150,26 @@ $ terraform plan
 $ terraform apply --auto-approve
 ```
 
-1. Run the commands above in the order given. These command will login to Terraform Cloud, create a plan, and apply the plan. The terraform.tfstate file will be stored on our Terraform cloud account and not locally.
+1. Run the commands above in the order given. These command will login to Terraform Cloud, create a plan, and apply the plan. The terraform.tfstate file will be stored on my Terraform cloud account and not locally.
 1. Go on to the Terraform Cloud browser tab and navigate to Workspace 'terra-home-1'.
 1. Click on Runs, to see the completed current run.
 
-We have now completed our setup of Terraform Cloud. From here onwards our Azure infrastructure state we be securely stored. Subsequent runs will be logged in Terraform cloud for viewing.
+I have now completed the setup of Terraform Cloud. From here onwards my Azure infrastructure state will be securely stored. Subsequent runs will be logged in Terraform cloud for viewing.
 
 ## Terraform cli convenience bash alias
 
-To aid productivity using the terminal we can create aliases to common linux commands. The most popular aliases are for the list 'ls' command. Typing 'ls' on it's own isn't so bad, but the default result isn't particularly helpful. That is why by default many Linux OS's provide aliases for the 'ls' command. These aliases are stored in a '.bashrc' file for the logged in user. 
+To aid productivity using the terminal I shall create aliases to common linux commands. The most popular aliases are for the list 'ls' command. Typing 'ls' on it's own isn't so bad, but the default result isn't particularly helpful. That is why by default many Linux OS's provide aliases for the 'ls' command. These aliases are stored in a '.bashrc' file for the logged in user. 
 
 Here is an example of an alias.
 ```bash
 alias ll='ls -alF'
 ```
 
-On Ubuntu you can create your own file '.bash_aliases' this will take precedence over .bashrc. We can put our personal bash aliases in this file. For example you may want to have an alias for the terraform command below. 
+On Ubuntu I can create my own file '.bash_aliases' this will take precedence over .bashrc. I shall put my personal bash aliases in this file. For example I will add an alias for the terraform command below. 
 ```bash
 $ terraform init
 ```
-We can create an alias, so that the same command becomes.
+I shall create an alias, so that the same command becomes.
 
 ```bash
 $ tf init
@@ -1179,14 +1180,14 @@ alias tf='terraform'
 ```
 
 
-For Gitpod, to make this alias persist on the creation of new workspaces, we need to create a bash script that will create the '.bash_aliases' file and populate it with the alias for the terraform command.
+For Gitpod, to make this alias persist on the creation of new workspaces, I need to create a bash script that will create the '.bash_aliases' file and populate it with the alias for the terraform command.
 
 The bash script should do the following:-
 - Create file /home/gitpod/.bash_aliases, if it doesn't exist.
 - Use the cat command to populate the file with the alias.
 - Make the aliases available immediately, by using the source command on the .bash_aliases file.
 - The bash script should be stored in the '/workspace/terraform-beginner-bootcamp-2023-azure/bin' folder.
-- We can make the script executable using the command below:
+- I shall make the script executable using the command below:
 ```bash
 $ chmod 764 ./bin/create_bash_aliases
 ```
@@ -1219,5 +1220,3 @@ The bash script should be run first as part of the .gitpod.yml 'before' task usi
 - [Terraform Cloud Variable Precedence](https://developer.hashicorp.com/terraform/cloud-docs/workspaces/variables#precedence)<sup>[12]</sup>
 
 - [Output data from Terraform](https://developer.hashicorp.com/terraform/tutorials/configuration-language/outputs)<sup>[13]</sup>
-
-- [Abbreviation examples for Azure resources](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations)
