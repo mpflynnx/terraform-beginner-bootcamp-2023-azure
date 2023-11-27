@@ -1,7 +1,3 @@
-# resource "random_id" "front_door_endpoint_name" {
-#   byte_length = 8
-# }
-
 locals {
   front_door_profile_name      = "MyFrontDoor"
   front_door_endpoint_name     = "afd-8321f85459a3065e"
@@ -12,7 +8,7 @@ locals {
 
 resource "azurerm_cdn_frontdoor_profile" "my_front_door" {
   name                = local.front_door_profile_name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.main.name
   sku_name            = "Standard_AzureFrontDoor"
 }
 
