@@ -16,6 +16,7 @@ EOF
 echo "${TARGET_FILE} has been created."
 
 # Reload the .bash_aliases file in your current shell session.
+#shellcheck source=/dev/null
 source ${TARGET_FILE}
 
 # Note: If you’re running this script as a separate process, the
