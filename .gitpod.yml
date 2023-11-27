@@ -3,15 +3,15 @@ tasks:
     env:
       TF_LOG: DEBUG
     before: |
-      cd $PROJECT_ROOT
-      cp $PROJECT_ROOT/terraform.tfvars.example $PROJECT_ROOT/terraform.tfvars
+      cd $GITPOD_REPO_ROOT
+      cp $GITPOD_REPO_ROOT/terraform.tfvars.example $GITPOD_REPO_ROOT/terraform.tfvars
       source ./bin/create_bash_aliases
       source ./bin/install_terraform_cli
       source ./bin/generate_tfrc_credentials
       gp sync-done terraform-cli
   - name: azure-cli
     before: |
-      cd $PROJECT_ROOT
+      cd $GITPOD_REPO_ROOT
       source ./bin/create_bash_aliases
       gp sync-await terraform-cli && source ./bin/install_azure_cli
 vscode:
