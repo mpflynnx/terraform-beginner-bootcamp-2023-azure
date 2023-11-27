@@ -1,3 +1,17 @@
+variable "application_name" {
+  description = "Name of a project, application, or service that the resource is a part of"
+  type = string
+}
+variable "environment_name" {
+  description = "The stage of the development lifecycle for the workload that the resource supports"
+  type = string
+}
+
+variable "primary_region" {
+  description = "The region or cloud provider where the resource is deployed"
+  type = string
+}
+
 variable "user_uuid" {
   description = "The UUID for the user" 
   type = string
@@ -6,21 +20,6 @@ variable "user_uuid" {
     condition     = can(regex("^\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12}$", var.user_uuid))
     error_message = "Invalid UUID format. Please provide a valid UUID."
   }
-}
-
-variable "resource_group_name" {
-  description = "The name of the resource group."
-  type = string
-}
-
-variable "resource_group_location" {
-  description = "The location of the resource group."
-  type = string
-}
-
-variable "storage_account_name" {
-  description = "The name of the storage account"
-  type = string
 }
 
 variable "account_tier" {
@@ -47,12 +46,6 @@ variable "public_path" {
     error_message = "File index.html does not exist."
   }
 }
-
-# variable "origin_url" {
-#   type        = string
-#   description = "Url of the origin."
-#   default     = "www.contoso.com"
-# }
 
 variable "cdn_sku" {
   type        = string

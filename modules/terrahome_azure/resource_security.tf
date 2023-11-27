@@ -9,7 +9,7 @@ locals {
 
 resource "azurerm_cdn_frontdoor_firewall_policy" "my_waf_policy" {
   name                              = local.waf_policy_name
-  resource_group_name               = azurerm_resource_group.rg.name
+  resource_group_name               = azurerm_resource_group.main.name
   sku_name                          = azurerm_cdn_frontdoor_profile.my_front_door.sku_name
   enabled                           = true
   mode                              = "Prevention"

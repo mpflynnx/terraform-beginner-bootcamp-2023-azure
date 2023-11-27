@@ -1,8 +1,14 @@
+resource "random_string" "st" {
+  length  = 8
+  upper   = false
+  special = false
+}
+
 # Create a storage account
 resource "azurerm_storage_account" "st" {
-  name = var.storage_account_name
-  resource_group_name = azurerm_resource_group.rg.name
-  location = azurerm_resource_group.rg.location
+  name = "st${var.application_name}${var.environment_name}${random_string.st.result}"
+  resource_group_name = azurerm_resource_group.main.name
+  location = azurerm_resource_group.main.location
   account_tier = var.account_tier
   account_replication_type = var.account_replication_type
   account_kind = var.account_kind
@@ -52,7 +58,7 @@ resource "azurerm_storage_blob" "error_html" {
 
 data "azurerm_storage_account" "storage_data_source" {
   name = azurerm_storage_account.st.name
-  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.main.name
 }
 
 resource "terraform_data" "content_version" {

@@ -15,8 +15,14 @@ provider "azurerm" {
   features {}
 }
 
+resource "random_string" "main" {
+  length  = 8
+  upper   = false
+  special = false
+}
+
 # Create a resource group
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.resource_group_location
+resource "azurerm_resource_group" "main" {
+  name     = "rg-${var.application_name}-${var.environment_name}-${random_string.main.result}"
+  location = var.primary_region
 }
