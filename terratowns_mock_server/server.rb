@@ -9,11 +9,18 @@ class Home
   include ActiveModel::Validations
   attr_accessor :town, :name, :description, :domain_name, :content_version
 
-  validates :town, presence: true
+  validates :town, presence: true, inclusion: { in: [
+    'melomaniac-mansion',
+    'cooker-cove',
+    'video-valley',
+    'the-nomad-pad',
+    'gamers-grotto'
+  ] }
+  # visible to all users
   validates :name, presence: true
   validates :description, presence: true
   validates :domain_name, 
-    format: { with: /\.cloudfront\.net\z/, message: "domain must be from .cloudfront.net" }
+    format: { with: /\.azurefd\.net\z/, message: "domain must be from .azurefd.net" }
     # uniqueness: true, 
 
   validates :content_version, numericality: { only_integer: true }
@@ -148,7 +155,6 @@ class TerraTownsMockServer < Sinatra::Base
     # Validate payload data
     name = payload["name"]
     description = payload["description"]
-    domain_name = payload["domain_name"]
     content_version = payload["content_version"]
 
     unless params[:uuid] == $home[:uuid]
@@ -157,9 +163,9 @@ class TerraTownsMockServer < Sinatra::Base
 
     home = Home.new
     home.town = $home[:town]
+    home.domain_name = $home[:domain_name]
     home.name = name
     home.description = description
-    home.domain_name = domain_name
     home.content_version = content_version
 
     unless home.valid?
@@ -180,8 +186,9 @@ class TerraTownsMockServer < Sinatra::Base
       error 404, "failed to find home with provided uuid and bearer token"
     end
 
+    uuid = $home[:uuid]
     $home = {}
-    { message: "House deleted successfully" }.to_json
+    { uuid: uuid }.to_json
   end
 end
 
