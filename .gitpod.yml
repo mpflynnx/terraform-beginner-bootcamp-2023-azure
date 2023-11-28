@@ -14,6 +14,12 @@ tasks:
       cd $GITPOD_REPO_ROOT
       source ./bin/create_bash_aliases
       gp sync-await terraform-cli && source ./bin/install_azure_cli
+  - name: sinatra
+    before: |
+      cd $GITPOD_REPO_ROOT
+      cd terratowns_mock_server 
+      bundle install
+      bundle exec ruby server.rb
 vscode:
   extensions:
     - hashicorp.terraform
