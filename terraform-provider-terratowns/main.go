@@ -146,7 +146,7 @@ func resourceHouseCreate(ctx context.Context, d *schema.ResourceData, m interfac
 		return diag.FromErr(err)
 	}
 
-	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes"
 	log.Print("URL: "+ url)
 	// Construct the HTTP Request
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payloadBytes))
@@ -196,7 +196,7 @@ func resourceHouseRead(ctx context.Context, d *schema.ResourceData, m interface{
 	homeUUID := d.Id()
 
 	// Construct the HTTP Request
-	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"+homeUUID
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
 	log.Print("URL: "+ url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -256,7 +256,7 @@ func resourceHouseUpdate(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 
 	// Construct the HTTP Request
-	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"+homeUUID
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
 	log.Print("URL: "+ url)
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
@@ -303,7 +303,7 @@ func resourceHouseDelete(ctx context.Context, d *schema.ResourceData, m interfac
 	homeUUID := d.Id()
 
 	// Construct the HTTP Request
-	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"+homeUUID
+	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
 	log.Print("URL: "+ url)
 	req, err := http.NewRequest("DELETE", url , nil)
 	if err != nil {

@@ -33,7 +33,7 @@ provider "terratowns" {
 # }
 
 resource "terratowns_home" "home" {
-  name = "!How to play Frontier: Elite II in 2023!"
+  name = "How to play Frontier: Elite II in 2023!"
   description = <<DESCRIPTION
 !Frontier: Elite II is a space trading and combat simulator 
 video game written by David Braben and published by GameTek 
