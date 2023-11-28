@@ -110,7 +110,7 @@ func Resource() *schema.Resource {
 			"domain_name": {
 				Type: schema.TypeString,
 				Required: true,
-				Description: "Domain name of home eg. *.cloudfront.net",
+				Description: "Domain name of home eg. *.azurefd.net",
 			},
 			"town": {
 				Type: schema.TypeString,
@@ -196,7 +196,7 @@ func resourceHouseRead(ctx context.Context, d *schema.ResourceData, m interface{
 	homeUUID := d.Id()
 
 	// Construct the HTTP Request
-	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"+homeUUID
 	log.Print("URL: "+ url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -256,7 +256,7 @@ func resourceHouseUpdate(ctx context.Context, d *schema.ResourceData, m interfac
 	}
 
 	// Construct the HTTP Request
-	url := config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"+homeUUID
 	log.Print("URL: "+ url)
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
@@ -303,7 +303,7 @@ func resourceHouseDelete(ctx context.Context, d *schema.ResourceData, m interfac
 	homeUUID := d.Id()
 
 	// Construct the HTTP Request
-	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes/"+homeUUID
+	url :=  config.Endpoint+"/u/"+config.UserUuid+"/homes"+homeUUID
 	log.Print("URL: "+ url)
 	req, err := http.NewRequest("DELETE", url , nil)
 	if err != nil {
