@@ -1018,7 +1018,7 @@ resource "azurerm_storage_blob" "index_html" {
 ```
 
 ## Trigger update by a variable change
-As I will be managing the content of the static website via another repository. I do not want Terraform to make a change to this content. As Terraform is used to set the initial index.html and error.html files. I do not want any updates provisioned by the state website content repository to be changed by this repository. I would like the 'terraform plan' command to only plan to update the index.html and error.html file when a variable changes.
+As I will be managing the content of the static website via another repository [terrahome-azure](https://github.com/mpflynnx/terrahome-azure). I do not want Terraform to make a change to this content. As Terraform is used to set the initial index.html and error.html files. I do not want any updates provisioned by the state website content repository to be changed by this repository. I would like the 'terraform plan' command to only plan to update the index.html and error.html file when a variable changes.
 
 I will create a new variable called 'content_version' this variable will store only positive integers greater than zero.
 

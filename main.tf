@@ -7,14 +7,11 @@ terraform {
   }
 }
 
-# mocking to test server using fake values
-# from bin/terratowns/create
 provider "terratowns" {
-  endpoint = "http://localhost:4567/api"
-  user_uuid="e328f4ab-b99f-421c-84c9-4ccea042c7d1" 
-  token="9b49b3fb-b8e9-483c-b703-97ba88eef8e0"
+  endpoint = var.terratowns_endpoint
+  user_uuid = var.teacherseat_user_uuid
+  token = var.terratowns_access_token
 }
-
 
 
 # module "terrahome_azure" {
@@ -33,7 +30,7 @@ provider "terratowns" {
 # }
 
 resource "terratowns_home" "home" {
-  name = "How to play Frontier: Elite II in 2023!"
+  name = "!How to play Frontier: Elite II in 2023!"
   description = <<DESCRIPTION
 !Frontier: Elite II is a space trading and combat simulator 
 video game written by David Braben and published by GameTek 
@@ -45,6 +42,7 @@ accurately modelled galaxy. Go get it!!
 DESCRIPTION
   #domain_name = module.terrahome_azure.frontDoorEndpointHostName
   domain_name = "dsdsf3453.azurefd.net"
-  town = "gamers-grotto"
+  # domain_name = "dsdsf3453.cloudfront.net"
+  town = "missingo"
   content_version = 1
 }
