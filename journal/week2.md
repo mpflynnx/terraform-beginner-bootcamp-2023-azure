@@ -54,13 +54,19 @@ There are five production `TerraTowns` and one testing `TerraTown` to choose bas
 
 ### TerraHome
 
-The picture below represents my `TerraHome` link named 'Why play Frontier: Elite II in 2023!' listed in the `Gamer's Grotto` TerraTown. Clicking on link takes you to the content distribution networks (CDN) domain provisioned in the cloud provider. If the cloud resources has been provisioned then displayed in a iframe will be the contents of the state website. 
+The picture below represents my `TerraHome` link named 'Why play Frontier: Elite II in 2023!' listed in the `Gamer's Grotto` TerraTown. Clicking on link takes you to the content distribution networks (CDN) domain name provisioned in the cloud provider.
 
 #### Static website link in Town Gamer's Grotto
 <p align="center">
   <img src="../assets/terratowns-gamers-jpg.png"/>
 </p>
 
+If the cloud resources has been provisioned then displayed in a iframe will be the contents of the state website as shown below.
+
+#### Static website displayed in iFrame
+<p align="center">
+  <img src="../assets/frontier-town-with-comments.png"/>
+</p>
 
 ## Sinatra server
 [Sinatra](https://sinatrarb.com/documentation.html) is a free and open source micro server framework written in Ruby.
